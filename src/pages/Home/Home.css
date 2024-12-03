@@ -1,0 +1,113 @@
+.bg-map-img{
+    background-image: url("../../assets/images/map.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.tab_btn {
+    position: relative;
+    /* height: 60px; */
+}
+
+.tab_btn ion-segment{
+    background: none;
+    overflow: hidden;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    max-width: calc(100% - 92px);
+}
+.tab_btn ion-segment-button {
+    height: 2px;
+    color: #a3a19b;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #171f29;
+    /* font-size: 1rem; */
+    font-weight: 700;
+    text-transform: unset !important;
+    letter-spacing: 0;
+    /* --color-checked: #e9b818 !important; */
+    /* --background-checked: var(--bg-color) !important; */
+    --border-width: 0 !important;
+    --border-radius: 0 !important;
+    margin-top: 10px;
+    line-height: 40px;
+    min-height: 40px;
+}
+.tab_btn  ion-segment-button::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    /* background: var(--bg-color); */
+    z-index: -1;
+    transition: all .4s;
+    border-radius: 5px;
+}
+
+.tab2{
+    position: relative;
+    /* z-index: 99; */
+    background: #2e363f;
+    overflow: hidden;
+}
+.tab2 ion-segment{
+    white-space: nowrap;
+    padding: 10px 0px;
+    overflow: hidden;
+    overflow-x: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.tab2 ion-segment-button{
+    box-shadow: inset 0px 0px 2px #e9b818;
+    /* background-color: #2e363f; */
+    text-transform: unset !important;
+    display: inline-block;
+            border-radius: 50px;
+            color: white;
+            background: #2e363f;
+            font-size: .8rem;
+            font-weight: 600;
+            height: 33px;
+            min-width: 103px;
+            line-height: 31px;
+            margin: 0 1.5px;
+            padding: 0 10px;
+            position: relative;
+            overflow: hidden;
+            transition: all .4s;
+}
+.tab2 ion-segment-button::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    background: #e9b818;
+    z-index: -1;
+    transition: all .4s;
+    border-radius: 50px;
+}
+.tab2 ion-segment-button .active{
+    color: white;
+    transition: all .4s;
+                background: none;
+}
+.content{
+    --background: #2e363f;
+}
