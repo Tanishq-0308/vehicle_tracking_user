@@ -7,7 +7,7 @@ const Contactus: React.FC = () => {
     return (
         <IonPage>
            <IonHeader className=''>
-                <div className='bg-map-img h-[200px]'>
+                <div className='bg-map-img h-[170px]'>
                     <IonHeader className='ion-no-border '>
                         <IonToolbar color={'transparent'}>
                             <IonButton slot='start' fill='clear' color={'light'}>
