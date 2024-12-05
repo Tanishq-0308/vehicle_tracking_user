@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonList, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonList, IonPage, IonRow, IonTitle, IonToast, IonToolbar } from '@ionic/react';
 import React, { useState } from 'react';
 import './Signin.css'
 import axios from 'axios';
@@ -6,50 +6,53 @@ import { login } from '../apis/apis.js'
 import { useHistory } from 'react-router';
 
 const Signin: React.FC = () => {
-  // const [email, setEmail] = useState<string>('');
-  // const [password, setPassword] = useState<string>('');
-  // const [error, setError] = useState<string>('');
-  // const history = useHistory();
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [toastMessage,setToastMessage]=useState('')
+  const history = useHistory();
+  const [toast,setToast]=useState(false);
 
   // Handle form submission
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   const inputs = {
-  //     PhoneOrEmail: email,
-  //     password: password
-  //   }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const inputs = {
+      PhoneOrEmail: email,
+      password: password
+    }
 
 
-  //   // Basic validation
-  //   if (!email || !password) {
-  //     setError('Both fields are required');
-  //     return;
-  //   }
+    // Basic validation
+    if (!email || !password) {
+      setError('Both fields are required');
+      return;
+    }
 
-  //   setError('');
-  //   console.log('Email:', email);
-  //   console.log('Password:', password);
+    setError('');
+    console.log('Email:', email);
+    console.log('Password:', password);
 
-  //   setEmail('');
-  //   setPassword('')
+    setEmail('');
+    setPassword('')
 
-  //   try {
-  //     const response = await axios.post(login(), inputs)
-  //     const access_token = response.data.access_token;
-  //     console.log(response);
-  //     console.log(response.data.IsSucess);
+    try {
+      const response = await axios.post(login(), inputs)
+      const access_token = response.data.access_token;
+      console.log(response);
+      console.log(response.data.IsSucess);
 
-  //     localStorage.setItem('token', access_token);
-  //     if (response.data.IsSucess === true) {
-  //       history.push('/app')
-  //     } else {
-  //       alert('Login details are not correct')
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
+      localStorage.setItem('token', access_token);
+      if (response.data.IsSucess === true) {
+        history.push('/app')
+      } else {
+        setToastMessage("User is not registered");
+        setToast(true)
+      }
+    } catch (err) {
+      console.log(err);
 
-  //   }
-  // };
+    }
+  };
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -68,30 +71,30 @@ const Signin: React.FC = () => {
             <IonGrid >
               <IonRow className="ion-justify-content-center">
                 <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
-                  <form >
-                  <IonList lines="none" className="bg-transparent">
-                    <IonItem lines="none" className="m-4 rounded-md">
-                      <IonInput
-                        type="text"
-                        // value={email}
-                        //    onIonChange={(e) => setEmail(e.detail.value!)}
-                        placeholder="Phone number"
-                      //  required
-                      />
-                    </IonItem>
-                    <IonItem lines="none" className="m-4 rounded-md">
-                      <IonInput
-                        type="password"
-                        // value={password}
-                        //    onIonChange={(e) => setPassword(e.detail.value!)}
-                        placeholder="Password"
-                      //  required
-                      />
-                    </IonItem>
-                    <IonButton  routerLink='/app' expand="block" size="large" className="text-sm mx-4">
-                      Continue
-                    </IonButton>
-                  </IonList>
+                  <form onSubmit={handleSubmit}>
+                    <IonList lines="none" className="bg-transparent">
+                      <IonItem lines="none" className="m-4 rounded-md">
+                        <IonInput
+                          type="text"
+                          value={email}
+                          onIonChange={(e) => setEmail(e.detail.value!)}
+                          placeholder="Phone number"
+                          required
+                        />
+                      </IonItem>
+                      <IonItem lines="none" className="m-4 rounded-md">
+                        <IonInput
+                          type="password"
+                          value={password}
+                          onIonChange={(e) => setPassword(e.detail.value!)}
+                          placeholder="Password"
+                          required
+                        />
+                      </IonItem>
+                      <IonButton type='submit' expand="block" size="large" className="text-sm mx-4">
+                        Continue
+                      </IonButton>
+                    </IonList>
                   </form>
                 </IonCol>
               </IonRow>
@@ -102,6 +105,14 @@ const Signin: React.FC = () => {
               </IonButton>
             </div>
           </div>
+          <IonToast 
+            message={toastMessage}
+            color={'danger'}
+            isOpen={toast}
+            duration={2000}
+            onDidDismiss={() => setToast(false)}
+            position='top'
+          />
         </div>
       </IonContent>
     </IonPage>

@@ -53,6 +53,10 @@ const paths = [
 ];
 const Sidebar: React.FC = () => {
 
+    const handleLogout=()=>{
+        localStorage.removeItem('token')
+    }
+
     return (
         <IonPage>
             <IonSplitPane contentId='main'>
@@ -69,7 +73,7 @@ const Sidebar: React.FC = () => {
                     <IonContent>
                         {paths.map((items, index) => (
                             <IonMenuToggle key={index} autoHide={false}>
-                                <IonItem routerDirection='none' routerLink={items.path} className='ion-margin-top'>
+                                <IonItem routerDirection='none' routerLink={items.path} className='ion-margin-top' onClick={items.name === 'Logout' ? handleLogout: undefined}>
                                     <span className='text-[#0054e9]'>{items.icon}</span>
                                     <p className='ml-3 text-lg font-semibold'>{items.name}</p>
                                 </IonItem>

@@ -1,6 +1,9 @@
-import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonList, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToast, IonToolbar } from '@ionic/react';
+import axios from 'axios';
 import { chevronBackSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { signup } from '../apis/apis';
+import { useHistory } from 'react-router';
 
 const Signup: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -10,8 +13,12 @@ const Signup: React.FC = () => {
     const [address, setAddress] = useState<string>('');
     const [doctype, setDoctype] = useState('');
     const [docId,setDocId]=useState('');
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastColor, setToastColor] = useState('');
+    const history=useHistory();
 
-    const handleSubmit=(e:any)=>{
+    const handleSubmit=async(e:any)=>{
         e.preventDefault();
         const inputs={
             name:name,
@@ -23,7 +30,29 @@ const Signup: React.FC = () => {
             document_id:docId
         };
         console.log(inputs);
-        
+        try{
+            const response=await axios.post(signup(),inputs)
+            console.log(response.data);
+            const isAccountCreated= response.data.IsSucess;
+            if (isAccountCreated) {
+                setToastMessage('Account successfully created!');
+                setToastColor('success');
+                history.push('/app');
+              } else {
+                setToastMessage('Account creation failed!');
+                setToastColor('danger');
+              }
+        }catch(err:unknown){
+            console.log(err);
+            if(err instanceof Error){
+                setToastMessage(err.message)
+            }
+            else{
+                setToastMessage('An error has occurred');
+            }
+        }
+
+        setShowToast(true);
     }
 
     return (
@@ -143,6 +172,13 @@ const Signup: React.FC = () => {
                             </IonGrid>
                         </form>
                     </div>
+                    <IonToast
+            isOpen={showToast}
+            message={toastMessage}
+            duration={2000}
+            color={toastColor}
+            onDidDismiss={() => setShowToast(false)} // Hide toast after it disappears
+          />
                 </div>
             </IonContent>
         </IonPage>
