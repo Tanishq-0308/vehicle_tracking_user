@@ -36,22 +36,29 @@ import './theme/variables.css';
 import Signin from './pages/Signin/Signin';
 import Sidebar from './pages/Home/components/Sidebar';
 import Signup from './pages/Signup/Signup';
+import CreateTrip from './pages/create-trip/CreateTrip';
+import AddTripInfor from './pages/Add-trip-info/AddTripInfo';
+import TripContextProvider from './pages/context/TripContextProvider';
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
+    <TripContextProvider>
     <IonReactRouter>
       <IonRouterOutlet>
         <Route exact component={Home} path='/home'/>
         <Route exact component={Signin} path='/signin'/>
         <Route component={Sidebar} path='/app'/>
         <Route component={Signup} path='/signup'/>
+        <Route component={CreateTrip} path="/create-trip"/>
+        <Route component={AddTripInfor} path="/add-trip-infor"/>
         <Route exact path="/">
           <Redirect to="/signin" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
+    </TripContextProvider>
   </IonApp>
 );
 
