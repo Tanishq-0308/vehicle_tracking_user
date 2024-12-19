@@ -34,7 +34,9 @@ const Contactus: React.FC = () => {
                                             25, Hilltion Recidency, Golden Tower, Millenium Street, New York, United States
                                         </p>
                                         <IonButton className='w-[50px] mx-6'>
+                                        <a className='text-xl mt-1' href="https://www.google.com/maps?q=28.625547034141295,77.12418384769272" target="_blank">
                                             <IonIcon icon={navigate} color='light' ></IonIcon>
+                                        </a>
                                         </IonButton>
                                     </IonCardContent>
                                 </IonCard>
@@ -55,7 +57,9 @@ const Contactus: React.FC = () => {
                                                 </p>
                                             </div>
                                             <IonButton className='w-[50px] mx-6'>
+                                                <a href="tel:+1-1800-555-5555" className='text-xl mt-1'>
                                                 <IonIcon icon={call} color='light' ></IonIcon>
+                                                </a>
                                             </IonButton>
                                         </div>
                                         <div className='flex justify-between mt-5'>
@@ -66,7 +70,9 @@ const Contactus: React.FC = () => {
                                                 </p>
                                             </div>
                                             <IonButton className='w-[50px] mx-6'>
+                                            <a href="mailto:ts133casino@gmail.com" className='text-xl mt-1'>
                                                 <IonIcon icon={mail} color='light' ></IonIcon>
+                                            </a>
                                             </IonButton>
                                         </div>
                                     </IonCardContent>

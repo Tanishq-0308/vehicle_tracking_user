@@ -1,6 +1,7 @@
 import { IonButton, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonLabel, IonMenuButton, IonPage, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
 import { add, map } from 'ionicons/icons';
 import React, { useState } from 'react';
+import truckImg from '../../assets/truck1.png'
 
 const Drivers: React.FC = () => {
     const [selectedSegment, setSelectedSegment] = useState('drivers');
@@ -57,7 +58,7 @@ const Drivers: React.FC = () => {
                       <div className='flex items-center p-3 border-b rounded-xl  '>
                         <div className='h-[52px] w-16 flex'>
                           <img
-                            src="src/assets/images/driver_pic.png"
+                            src={truckImg}
                             alt="truckimg"
                             className="rounded-full"
                           />
@@ -101,7 +102,7 @@ const Drivers: React.FC = () => {
                     <div className='flex items-center p-3 border-b rounded-xl  '>
                       <div className='h-[52px] w-16 flex'>
                         <img
-                          src="src/assets/images/driver_pic.png"
+                          src={truckImg}
                           alt="truckimg"
                           className="rounded-full"
                         />

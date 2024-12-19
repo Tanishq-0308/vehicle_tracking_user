@@ -1,6 +1,7 @@
 import { IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
 import { add, map } from 'ionicons/icons';
 import React from 'react';
+import truckImg from '../../assets/truck1.png'
 
 const Trucks: React.FC = () => {
 
@@ -29,7 +30,7 @@ const Trucks: React.FC = () => {
                     <div className='flex items-center p-3 border-b rounded-xl  '>
                       <div className='h-[62px] w-20 flex'>
                         <img
-                          src="src/assets/images/truck1.png"
+                          src={truckImg}
                           alt="truckimg"
                           className="rounded-full"
                         />

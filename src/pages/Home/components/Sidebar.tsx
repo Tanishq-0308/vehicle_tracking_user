@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
 import React from 'react';
-import driverPic from '../../../assets/images/driver_pic.png'
+import driverPic from '../../../assets/driver_pic.png'
 import { Redirect, Route } from 'react-router';
 import Home from '../Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
