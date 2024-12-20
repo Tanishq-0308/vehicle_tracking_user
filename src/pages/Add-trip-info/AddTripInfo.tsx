@@ -4,6 +4,7 @@ import React, { useContext } from 'react';
 import TripContext from '../context/TripContext';
 
 const AddTripInfor: React.FC = () => {
+    type TripContextType = /*unresolved*/ any
     const {current,destination}= useContext<TripContextType | undefined>(TripContext);
     return (
         <IonPage>

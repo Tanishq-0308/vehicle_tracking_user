@@ -6,6 +6,7 @@ import TripContext from '../context/TripContext';
 
 const CreateTrip: React.FC = () => {
     const history=useHistory();
+    type TripContextType= any
     const {setCurrent, setDestination} = useContext<TripContextType | undefined>(TripContext)
     const [currentLocation,setCurrentLocation]=useState<string>('');
     const [destinationLocation,setDestinationLocation]=useState('');

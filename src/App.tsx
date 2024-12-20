@@ -39,7 +39,6 @@ import Signup from './pages/Signup/Signup';
 import CreateTrip from './pages/create-trip/CreateTrip';
 import AddTripInfor from './pages/Add-trip-info/AddTripInfo';
 import TripContextProvider from './pages/context/TripContextProvider';
-import MapView from './pages/Home/components/MapView';
 
 setupIonicReact();
 
@@ -54,7 +53,6 @@ const App: React.FC = () => (
         <Route component={Signup} path='/signup'/>
         <Route component={CreateTrip} path="/create-trip"/>
         <Route component={AddTripInfor} path="/add-trip-infor"/>
-        {/* <Route component={MapView} path="/map-view"/> */}
         <Route exact path="/">
           <Redirect to="/signin" />
         </Route>

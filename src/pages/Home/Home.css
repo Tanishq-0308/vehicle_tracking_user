@@ -111,3 +111,8 @@
 .content{
     --background: #2e363f;
 }
+
+.ion-toolbar{
+    /* --opacity: 0.5; */
+    height: 300px;
+}

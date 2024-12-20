@@ -71,7 +71,7 @@ const Signin: React.FC = () => {
             <IonGrid >
               <IonRow className="ion-justify-content-center">
                 <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
-                  <form onSubmit={handleSubmit}>
+                  <form >
                     <IonList lines="none" className="bg-transparent">
                       <IonItem lines="none" className="m-4 rounded-md">
                         <IonInput
@@ -79,7 +79,7 @@ const Signin: React.FC = () => {
                           value={email}
                           onIonChange={(e) => setEmail(e.detail.value!)}
                           placeholder="Phone number"
-                          required
+                          // required
                         />
                       </IonItem>
                       <IonItem lines="none" className="m-4 rounded-md">
@@ -88,10 +88,10 @@ const Signin: React.FC = () => {
                           value={password}
                           onIonChange={(e) => setPassword(e.detail.value!)}
                           placeholder="Password"
-                          required
+                          // required
                         />
                       </IonItem>
-                      <IonButton type='submit' expand="block" size="large" className="text-sm mx-4">
+                      <IonButton  routerLink='/app' expand="block" size="large" className="text-sm mx-4">
                         Continue
                       </IonButton>
                     </IonList>
