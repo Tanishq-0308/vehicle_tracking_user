@@ -71,7 +71,9 @@ const Signin: React.FC = () => {
             <IonGrid >
               <IonRow className="ion-justify-content-center">
                 <IonCol size="12" sizeMd="8" sizeLg="6" sizeXl="4">
-                  <form >
+                  <form 
+                    onSubmit={handleSubmit}
+                  >
                     <IonList lines="none" className="bg-transparent">
                       <IonItem lines="none" className="m-4 rounded-md">
                         <IonInput
@@ -91,7 +93,10 @@ const Signin: React.FC = () => {
                           // required
                         />
                       </IonItem>
-                      <IonButton  routerLink='/app' expand="block" size="large" className="text-sm mx-4">
+                      <IonButton 
+                      type='submit' 
+                      // routerLink='/app' 
+                      expand="block" size="large" className="text-sm mx-4">
                         Continue
                       </IonButton>
                     </IonList>

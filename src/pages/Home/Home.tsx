@@ -1,13 +1,13 @@
-import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
-import { add, camera, chevronBackSharp, chevronForward, map } from 'ionicons/icons';
+import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locateOutline, locationOutline, map, phoneLandscape } from 'ionicons/icons';
 import { useRef, useState } from 'react';
 import MapView from './components/MapView';
 import truckImg from '../../assets/truck1.png'
-import { Opacity } from '@mui/icons-material';
 
 const Home: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState('trip_history');
+  const [selectedModalSegment, setSelectedModalSegment] = useState('about_trip');
   const modal = useRef<HTMLIonModalElement>(null);
   const input = useRef<HTMLIonInputElement>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -16,6 +16,9 @@ const Home: React.FC = () => {
     setSelectedSegment(event.detail.value);
   };
 
+  const handleModalSegmentChange = (event: CustomEvent) => {
+    setSelectedModalSegment(event.detail.value)
+  }
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
@@ -141,11 +144,16 @@ const Home: React.FC = () => {
               </div>
             </IonToolbar>
           </IonHeader>
-          <IonContent className="ion-padding">
+          <IonContent className="ion-padding" >
             <MapView />
           </IonContent>
-          <IonContent>
-            <IonHeader className='bg-[#e4dede] rounded-t-2xl ion-no-border' >
+          <IonFooter className={`h-[45px] absolute transition-all ease-in-out duration-700 bottom-0 w-full`} id='upcoming-task-modal'>
+            <div id='openModal' className="ion-text-center pt-2 pb-4 px-0 bg-[#222428] text-gray-400 overflow-hidden rounded-t-xl w-[calc(100%-25px)] h-[75px] m-auto">
+              <IonIcon icon={chevronUp} className="block m-auto text-2xl mb-2" color="light"></IonIcon>
+            </div>
+          </IonFooter>
+          <IonModal isOpen={true} trigger='openModal' initialBreakpoint={0.5} breakpoints={[0.25, 0.5, 0.75]}>
+            <IonHeader className='bg-[#e4dede] ion-no-border' >
               <div className=''>
                 <div className='flex justify-between px-5 pt-4 items-center pb-1'>
                   <div className='flex gap-3'>
@@ -164,33 +172,116 @@ const Home: React.FC = () => {
                     <h2 className='m-0 text-sm font-bold leading-4 pb-2 text-[#27bd2e]' >In Transist</h2>
                   </div>
                 </div>
-                <IonSegment mode='md'>
-                  <IonSegmentButton className='ion-text-center text-xs' contentId='about_driver' value='about_driver'>
+                <IonSegment mode='md' value={selectedModalSegment} onIonChange={handleModalSegmentChange}>
+                  <IonSegmentButton className='ion-text-center text-xs font-bold text-black' contentId='about_trip' value='about_trip'>
                     About Trip
                   </IonSegmentButton>
-                  <IonSegmentButton className='ion-text-center text-xs' value='trip_history' contentId='trip_history'>
+                  <IonSegmentButton className='ion-text-center text-xs font-bold text-black' value='vehicle_info' contentId='vehicle_info'>
                     Vehicle Info
                   </IonSegmentButton>
                 </IonSegment>
               </div>
             </IonHeader>
             <IonContent>
-              <div className='px-5 pt-2'>
-                <IonRow>
-                  <IonCol size="8">
-                    <p className='text-gray-500 font-light text-sm'>Task</p>
-                    <p className=' text-gray-600 font-normal'>Chemical Delivery</p>
-                  </IonCol>
-                  <IonCol size="">
-                    <p className='text-gray-500 font-light text-sm'>Departed</p>
-                    <p className=' text-gray-600 font-normal'>20 June, 02:05pm</p>
-                  </IonCol>
-                </IonRow>
-              </div>
-              <div>
-              </div>
+              <IonSegmentView>
+                {selectedModalSegment == 'about_trip' && (
+                  <IonSegmentContent>
+                    <div className='px-7 py-5'>
+                      <IonRow>
+                        <IonCol size="8">
+                          <p className='text-gray-500 font-light text-sm'>Task</p>
+                          <p className=' text-gray-600 font-normal'>Chemical Delivery</p>
+                        </IonCol>
+                        <IonCol size="">
+                          <p className='text-gray-500 font-light text-sm'>Departed</p>
+                          <p className=' text-gray-600 font-normal'>20 June, 02:05pm</p>
+                        </IonCol>
+                      </IonRow>
+                    </div>
+                    <div className='px-5 pt-2'>
+                      <IonGrid>
+                        <IonRow className='my-5'>
+                          <IonIcon icon={ellipseOutline} className='text-red-500 bg-red-500 rounded-full text-lg  mr-4 mt-2' />
+                          <IonCol>
+                            <p className='text-gray-500 font-light text-sm'>Trip start location</p>
+                            <p className=' text-gray-600 font-normal'>B11 Opera Tower, IDSR Bank, New York, USA</p>
+                          </IonCol>
+                        </IonRow>
+                        <IonRow className='my-5'>
+                          <IonIcon icon={locationOutline} className=' rounded-full text-lg  mr-4 mt-4' />
+                          <IonCol>
+                            <p className='text-gray-500 font-light text-sm'>Current location</p>
+                            <p className=' text-gray-600 font-normal'>1141, Hemiltone tower, New York, USA</p>
+                          </IonCol>
+                        </IonRow>
+                        <IonRow className='my-5'>
+                          <IonIcon icon={ellipseOutline} className='text-green-500 bg-green-500 rounded-full text-lg  mr-4 mt-5' />
+                          <IonCol>
+                            <p className='text-gray-500 font-light text-sm'>Trip end location</p>
+                            <p className=' text-gray-600 font-normal'>Neuro Chemical Factory, New York, USA</p>
+                          </IonCol>
+                        </IonRow>
+                      </IonGrid>
+                    </div>
+                  </IonSegmentContent>
+                )}
+
+                {selectedModalSegment == 'vehicle_info' && (
+                  <IonSegmentContent>
+                    <div className='py-2'>
+                      <IonGrid>
+                        <IonRow className='px-7 py-4'>
+                          <IonCol size="8">
+                            <p className='text-gray-500 font-light text-sm'>Vehicle Model</p>
+                            <p className=' text-gray-600 font-normal'>SCAINIA R730</p>
+                          </IonCol>
+                          <IonCol size="">
+                            <p className='text-gray-500 font-light text-sm'>Vehicle Number</p>
+                            <p className=' text-gray-600 font-normal'>GTY 1024</p>
+                          </IonCol>
+                        </IonRow>
+                        <IonRow className='px-7 py-4'>
+                          <IonCol size="8">
+                            <p className='text-gray-500 font-light text-sm'>Max.Load Capacity</p>
+                            <p className=' text-gray-600 font-normal'>16.2 tonnes</p>
+                          </IonCol>
+                          <IonCol size="">
+                            <p className='text-blue-500 font-semibold'>Edit Vehicle info</p>
+                          </IonCol>
+                        </IonRow>
+                        <IonRow className='px-7 py-4'>
+                          <IonCol size="9">
+                            <p className='text-gray-500 font-light text-sm'>Driver</p>
+                            <p className=' text-gray-600 font-normal'>George Jackson (+91 9998887711)</p>
+                          </IonCol>
+                          <IonCol size="">
+                            <IonButton fill='clear'>
+                              <a href="tel:+1-1800-555-5555" className='text-xl '>
+                                <IonIcon icon={call} color='primary' className='border-2 p-2 rounded-full'></IonIcon>
+                              </a>
+                            </IonButton>
+                          </IonCol>
+                        </IonRow>
+                        <IonRow className='px-7 py-4'>
+                          <IonCol size="9">
+                            <p className='text-gray-500 font-light text-sm'>Helper</p>
+                            <p className=' text-gray-600 font-normal'>Tonny Willamson (+91 9998887711)</p>
+                          </IonCol>
+                          <IonCol size="">
+                            <IonButton fill='clear'>
+                              <a href="tel:+1-1800-555-5555" className='text-xl '>
+                                <IonIcon icon={call} color='primary' className='border-2 p-2 rounded-full'></IonIcon>
+                              </a>
+                            </IonButton>
+                          </IonCol>
+                        </IonRow>
+                      </IonGrid>
+                    </div>
+                  </IonSegmentContent>
+                )}
+              </IonSegmentView>
             </IonContent>
-          </IonContent>
+          </IonModal>
         </IonModal>
       </IonContent>
     </IonPage>
