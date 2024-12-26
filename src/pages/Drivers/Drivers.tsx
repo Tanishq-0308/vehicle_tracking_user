@@ -84,7 +84,7 @@ const Drivers: React.FC = () => {
             } 
           </IonSegmentContent>
           <IonFab horizontal='end' vertical='bottom' slot='' className='ion-padding'>
-                    <IonFabButton>
+                    <IonFabButton routerLink='/add-driver'>
                       <IonIcon icon={add}></IonIcon>
                     </IonFabButton>
                 </IonFab>
@@ -128,7 +128,7 @@ const Drivers: React.FC = () => {
             } 
           </IonSegmentContent>
           <IonFab horizontal='end' vertical='bottom' slot='' className='ion-padding'>
-                    <IonFabButton>
+                    <IonFabButton routerLink='/add-helper'>
                       <IonIcon icon={add}></IonIcon>
                     </IonFabButton>
                 </IonFab>

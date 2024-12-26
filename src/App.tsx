@@ -39,6 +39,9 @@ import Signup from './pages/Signup/Signup';
 import CreateTrip from './pages/create-trip/CreateTrip';
 import AddTripInfor from './pages/Add-trip-info/AddTripInfo';
 import TripContextProvider from './pages/context/TripContextProvider';
+import AddTruck from './pages/Trucks/components/AddTruck';
+import addDriver from './pages/Drivers/Components/Add-Driver';
+import AddHelper from './pages/Drivers/Components/AddHelper';
 
 setupIonicReact();
 
@@ -53,6 +56,9 @@ const App: React.FC = () => (
         <Route component={Signup} path='/signup'/>
         <Route component={CreateTrip} path="/create-trip"/>
         <Route component={AddTripInfor} path="/add-trip-infor"/>
+        <Route component={AddTruck} path="/add-truck"/>
+        <Route component={addDriver} path="/add-driver"/>
+        <Route component={AddHelper} path="/add-helper"/>
         <Route exact path="/">
           <Redirect to="/signin" />
         </Route>

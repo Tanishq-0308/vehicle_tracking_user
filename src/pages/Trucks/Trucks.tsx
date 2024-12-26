@@ -52,7 +52,7 @@ const Trucks: React.FC = () => {
                 ))}
 
 <IonFab horizontal='end' vertical='bottom' slot='fixed' className='ion-padding'>
-          <IonFabButton>
+          <IonFabButton routerLink='/add-truck'>
             <IonIcon icon={add}></IonIcon>
           </IonFabButton>
         </IonFab>

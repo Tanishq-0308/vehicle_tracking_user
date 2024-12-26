@@ -11,8 +11,8 @@ const Signup: React.FC = () => {
     const [number, setNumber] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [address, setAddress] = useState<string>('');
-    const [doctype, setDoctype] = useState('');
-    const [docId,setDocId]=useState('');
+    // const [doctype, setDoctype] = useState('');
+    const [companyName,setComapnyName]=useState('');
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastColor, setToastColor] = useState('');
@@ -22,37 +22,35 @@ const Signup: React.FC = () => {
         e.preventDefault();
         const inputs={
             name:name,
-            phone_no:number,
+            phone_number:number,
             email:email,
             password:password,
             address:address,
-            document_type:doctype,
-            document_id:docId
+            company_name:companyName
         };
-        console.log(inputs);
+        // console.log(inputs);
         try{
             const response=await axios.post(signup(),inputs)
-            console.log(response.data);
-            const isAccountCreated= response.data.IsSucess;
-            if (isAccountCreated) {
-                setToastMessage('Account successfully created!');
+            console.log(response);
+            // const isAccountCreated= response.data;
+            if (response.request.status === 201) {
+                setToastMessage('Account created');
                 setToastColor('success');
-                history.push('/app');
+                setShowToast(true)
+                history.push('/signin');
               } else {
                 setToastMessage('Account creation failed!');
                 setToastColor('danger');
+                setShowToast(true)
               }
-        }catch(err:unknown){
+        }catch(err:any){
+            if(err.request.status === 409){
+                setToastMessage("User already Existed");
+                setToastColor('danger')
+                setShowToast(true)
+              }
             console.log(err);
-            if(err instanceof Error){
-                setToastMessage(err.message)
-            }
-            else{
-                setToastMessage('An error has occurred');
-            }
         }
-
-        setShowToast(true);
     }
 
     return (
@@ -132,30 +130,18 @@ const Signup: React.FC = () => {
                                                     label='Address'
                                                     labelPlacement='floating'
                                                     placeholder="Address"
-                                                    aria-label="Company Name"
                                                     value={address}
                                                     onIonChange={(e)=> setAddress(e.detail.value!)}
                                                 ></IonInput>
                                             </IonItem>
                                             <IonItem lines="none" className="m-4 rounded-md">
-                                                <IonSelect
-                                                    placeholder="Document Type"
-                                                    aria-label="Document Type"
-                                                    value={doctype}
-                                                    onIonChange={(e)=> setDoctype(e.detail.value!)}
-                                                >
-                                                    <IonSelectOption value="Pan">Pan</IonSelectOption>
-                                                    <IonSelectOption value="Aadhar">Aadhar</IonSelectOption>
-                                                </IonSelect>
-                                            </IonItem>
-                                            <IonItem lines="none" className="m-4 rounded-md">
                                                 <IonInput
                                                     type="text"
-                                                    label='Document ID'
+                                                    label='Company_name'
                                                     labelPlacement='floating'
-                                                    placeholder="ID"
-                                                    value={docId}
-                                                    onIonChange={(e)=> setDocId(e.detail.value!)}
+                                                    placeholder="company name"
+                                                    value={companyName}
+                                                    onIonChange={(e)=> setComapnyName(e.detail.value!)}
                                                 ></IonInput>
                                             </IonItem>
                                             <IonButton

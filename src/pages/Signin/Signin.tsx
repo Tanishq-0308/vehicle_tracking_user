@@ -12,12 +12,13 @@ const Signin: React.FC = () => {
   const [toastMessage,setToastMessage]=useState('')
   const history = useHistory();
   const [toast,setToast]=useState(false);
+  const [toastColor, setToastColor] = useState('');
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const inputs = {
-      PhoneOrEmail: email,
+      email: email,
       password: password
     }
 
@@ -37,18 +38,31 @@ const Signin: React.FC = () => {
 
     try {
       const response = await axios.post(login(), inputs)
-      const access_token = response.data.access_token;
-      console.log(response);
-      console.log(response.data.IsSucess);
+      const access_token = response.data.token;
+      const adminId= response.data.id;
+      console.log(response.request.status);
+      console.log(response.data.id);
 
       localStorage.setItem('token', access_token);
-      if (response.data.IsSucess === true) {
+      localStorage.setItem('id',adminId)
+      if (response.request.status === 200) {
         history.push('/app')
       } else {
         setToastMessage("User is not registered");
+        setToastColor('danger')
         setToast(true)
       }
-    } catch (err) {
+    } catch (err:any) {
+      if(err.request.status === 400){
+        setToastMessage("Login details are incorrect");
+        setToastColor('danger')
+        setToast(true)
+      }
+      else if(err.request.status === 401){
+        setToastMessage("Login details are incorrect");
+        setToastColor('danger')
+        setToast(true)
+      }
       console.log(err);
 
     }
@@ -112,7 +126,7 @@ const Signin: React.FC = () => {
           </div>
           <IonToast 
             message={toastMessage}
-            color={'danger'}
+            color={toastColor}
             isOpen={toast}
             duration={2000}
             onDidDismiss={() => setToast(false)}
