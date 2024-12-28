@@ -4,6 +4,7 @@ import './Signin.css'
 import axios from 'axios';
 import { login } from '../apis/apis.js'
 import { useHistory } from 'react-router';
+import {environment} from '../../../environments/environment'
 
 const Signin: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -13,6 +14,8 @@ const Signin: React.FC = () => {
   const history = useHistory();
   const [toast,setToast]=useState(false);
   const [toastColor, setToastColor] = useState('');
+  // const api_url='http://192.168.1.81:8082/api/v1/login'
+  const api_url=environment.apiUrl;
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +40,7 @@ const Signin: React.FC = () => {
     setPassword('')
 
     try {
-      const response = await axios.post(login(), inputs)
+      const response = await axios.post(api_url, inputs)
       const access_token = response.data.token;
       const adminId= response.data.id;
       console.log(response.request.status);
