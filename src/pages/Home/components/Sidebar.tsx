@@ -1,5 +1,5 @@
 import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
-import React from 'react';
+import React, { useContext } from 'react';
 import driverPic from '../../../assets/driver_pic.png'
 import { Redirect, Route } from 'react-router';
 import Home from '../Home';
@@ -12,6 +12,7 @@ import Contactus from '../../ContactUs/Contactus';
 import Trucks from '../../Trucks/Trucks';
 import Drivers from '../../Drivers/Drivers';
 import Profile from '../../Profile/Profile';
+import AdminContext from '../../contexts/AdminContext/AdminContext';
 
 const paths = [
     {
@@ -57,6 +58,8 @@ const Sidebar: React.FC = () => {
         localStorage.removeItem('token')
         localStorage.removeItem('id')
     }
+    type AdminContextType = /*unresolved*/ any
+    const {adminName,companyName}=useContext<AdminContextType | undefined>(AdminContext);
 
     return (
         <IonPage>
@@ -66,8 +69,8 @@ const Sidebar: React.FC = () => {
                         <IonToolbar >
                             <div className='flex flex-col items-center justify-center my-8'>
                                 <img src={driverPic} alt="" className='h-[80px] w-[80px]' />
-                                <p className='text-xl font-bold'>George pole</p>
-                                <p>Seven Star Transportations</p>
+                                <p className='text-xl font-bold'>{adminName}</p>
+                                <p>{companyName}</p>
                             </div>
                         </IonToolbar>
                     </IonHeader>

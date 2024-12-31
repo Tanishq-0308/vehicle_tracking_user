@@ -3,6 +3,7 @@ import axios from 'axios';
 import { chevronBackSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { addTruck } from '../../apis/apis';
+import { CapacitorHttp } from '@capacitor/core';
 
 const AddTruck: React.FC = () => {
     const [truckNumber, setTruckNumber] = useState('');
@@ -31,10 +32,16 @@ const AddTruck: React.FC = () => {
         console.log(input, headers);
 
         try {
-            const response = await axios.post(addTruck(), input, { headers })
+            const response=await CapacitorHttp.request({
+                    url: addTruck(),
+                    method: 'POST',
+                    headers:headers,
+                    data: input
+                  })
+            // const response = await axios.post(addTruck(), input, { headers })
             console.log(response);
 
-            if(response.request.status === 201){
+            if(response.status === 201){
                 setToastMessage('Truck Added')
                 setToastColor('success')
                 setShowToast(true)

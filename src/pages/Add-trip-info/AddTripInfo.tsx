@@ -1,7 +1,7 @@
 import { IonButton, IonCol, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonModal, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar } from '@ionic/react';
 import { chevronBackSharp, ellipseOutline, locate } from 'ionicons/icons';
 import React, { useContext } from 'react';
-import TripContext from '../context/TripContext';
+import TripContext from '../contexts/TripContext/TripContext';
 
 const AddTripInfor: React.FC = () => {
     type TripContextType = /*unresolved*/ any

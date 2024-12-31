@@ -2,7 +2,7 @@ import { IonBackButton, IonButton, IonContent, IonHeader, IonIcon, IonInput, Ion
 import { atCircle, chevronBackSharp, ellipseOutline, locate } from 'ionicons/icons';
 import React, { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
-import TripContext from '../context/TripContext';
+import TripContext from '../contexts/TripContext/TripContext';
 
 const CreateTrip: React.FC = () => {
     const history=useHistory();

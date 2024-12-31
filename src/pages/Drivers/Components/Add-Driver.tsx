@@ -2,6 +2,7 @@ import { IonBackButton, IonButton, IonCard, IonCardContent, IonCol, IonContent, 
 import axios from 'axios';
 import React, { useState } from 'react';
 import { addTruck, driverInfo } from '../../apis/apis';
+import { CapacitorHttp } from '@capacitor/core';
 
 const addDriver: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -38,10 +39,16 @@ const addDriver: React.FC = () => {
         console.log(input, headers);
 
         try {
-            const response = await axios.post(driverInfo(), input, { headers })
+            const response=await CapacitorHttp.request({
+                    url: driverInfo(),
+                    method: 'POST',
+                    headers:headers,
+                    data: input
+                  })
+            // const response = await axios.post(driverInfo(), input, { headers })
             console.log(response);
 
-            if (response.request.status === 201) {
+            if (response.status === 201) {
                 setToastMessage('Driver Added')
                 setToastColor('success')
                 setShowToast(true)

@@ -1,9 +1,12 @@
 import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
 import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locateOutline, locationOutline, map, phoneLandscape } from 'ionicons/icons';
-import { useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import MapView from './components/MapView';
 import truckImg from '../../assets/truck1.png'
+import AdminContext from '../contexts/AdminContext/AdminContext';
+import { CapacitorHttp } from '@capacitor/core';
+import { getProfile } from '../apis/apis';
 
 const Home: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState('trip_history');
@@ -11,6 +14,15 @@ const Home: React.FC = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const input = useRef<HTMLIonInputElement>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  type AdminContextType = /*unresolved*/ any
+  const {setAdminName,setCompanyName}= useContext<AdminContextType | undefined>(AdminContext);
+  const id = localStorage.getItem('id')
+  const bearer_token = localStorage.getItem('token');
+
+    const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearer_token}`
+    }
 
   const handleSegmentChange = (event: CustomEvent) => {
     setSelectedSegment(event.detail.value);
@@ -19,6 +31,26 @@ const Home: React.FC = () => {
   const handleModalSegmentChange = (event: CustomEvent) => {
     setSelectedModalSegment(event.detail.value)
   }
+
+  useEffect(()=>{
+    const getAdminDetails=async()=>{
+    try{
+      const response=await CapacitorHttp.request({
+              url: getProfile(id),
+              method: 'GET',
+              headers:headers,
+            })
+      setAdminName(response.data.profile.Name)
+      setCompanyName(response.data.profile.CompanyName)
+      console.log(response.data.profile.Name);
+      console.log(response.data.profile.CompanyName);
+      
+    }catch(err){
+      console.error("fetching admin data ",err);
+    }
+  }
+  getAdminDetails();
+  },[id])
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>

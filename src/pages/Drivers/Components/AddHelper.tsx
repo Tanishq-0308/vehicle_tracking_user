@@ -2,6 +2,7 @@ import { IonBackButton, IonButton, IonCol, IonContent, IonGrid, IonHeader, IonIn
 import axios from 'axios';
 import React, { useState } from 'react';
 import { driverInfo, helperInfo } from '../../apis/apis';
+import { CapacitorHttp } from '@capacitor/core';
 
 const AddHelper: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -38,21 +39,27 @@ const AddHelper: React.FC = () => {
         console.log(input, headers);
 
         try {
-            const response = await axios.post(helperInfo(), input, { headers })
+            const response=await CapacitorHttp.request({
+                    url: helperInfo(),
+                    method: 'POST',
+                    headers:headers,
+                    data: input
+                  })
+            // const response = await axios.post(helperInfo(), input, { headers })
             console.log(response);
 
-            if (response.request.status === 201) {
-                setToastMessage('Driver Added')
+            if (response.status === 201) {
+                setToastMessage('Helper Added')
                 setToastColor('success')
                 setShowToast(true)
             }
-            setName('')
-            setNumber('')
-            setAddress('')
-            setEmail('')
-            setPassword('')
-            setDocId('')
-            setDoctype('')
+            // setName('')
+            // setNumber('')
+            // setAddress('')
+            // setEmail('')
+            // setPassword('')
+            // setDocId('')
+            // setDoctype('')
 
         } catch (err: any) {
             if (err.response.status === 409) {

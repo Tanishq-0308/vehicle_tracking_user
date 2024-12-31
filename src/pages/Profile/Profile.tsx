@@ -1,9 +1,9 @@
 import { IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './profile.css'
+import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 
 const Profile: React.FC = () => {
-
     return (
         <IonPage>
             <IonHeader className='ion-no-border'>

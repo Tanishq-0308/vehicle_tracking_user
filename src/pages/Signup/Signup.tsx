@@ -4,6 +4,7 @@ import { chevronBackSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { signup } from '../apis/apis';
 import { useHistory } from 'react-router';
+import { CapacitorHttp } from '@capacitor/core';
 
 const Signup: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -30,10 +31,17 @@ const Signup: React.FC = () => {
         };
         // console.log(inputs);
         try{
-            const response=await axios.post(signup(),inputs)
+            const response=await CapacitorHttp.request({
+                    url: signup(),
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',  // Set the content type to JSON
+                    },
+                    data: inputs
+                  })
+            // const response=await axios.post(signup(),inputs)
             console.log(response);
-            // const isAccountCreated= response.data;
-            if (response.request.status === 201) {
+            if (response.status === 201) {
                 setToastMessage('Account created');
                 setToastColor('success');
                 setShowToast(true)

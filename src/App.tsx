@@ -38,15 +38,17 @@ import Sidebar from './pages/Home/components/Sidebar';
 import Signup from './pages/Signup/Signup';
 import CreateTrip from './pages/create-trip/CreateTrip';
 import AddTripInfor from './pages/Add-trip-info/AddTripInfo';
-import TripContextProvider from './pages/context/TripContextProvider';
+import TripContextProvider from './pages/contexts/TripContext/TripContextProvider';
 import AddTruck from './pages/Trucks/components/AddTruck';
 import addDriver from './pages/Drivers/Components/Add-Driver';
 import AddHelper from './pages/Drivers/Components/AddHelper';
+import AdminContextProvider from './pages/contexts/AdminContext/AdminContextProvider';
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
+    <AdminContextProvider>
     <TripContextProvider>
     <IonReactRouter>
       <IonRouterOutlet>
@@ -65,6 +67,7 @@ const App: React.FC = () => (
       </IonRouterOutlet>
     </IonReactRouter>
     </TripContextProvider>
+    </AdminContextProvider>
   </IonApp>
 );
 
