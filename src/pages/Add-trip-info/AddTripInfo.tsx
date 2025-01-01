@@ -3,98 +3,129 @@ import { chevronBackSharp, ellipseOutline, locate } from 'ionicons/icons';
 import React, { useContext, useEffect, useState } from 'react';
 import TripContext from '../contexts/TripContext/TripContext';
 import { CapacitorHttp } from '@capacitor/core';
-import { getDriver, getTruck } from '../apis/apis';
+import { getDriver, getHelper, getTruck } from '../apis/apis';
 interface Driver {
-  Name: string;
-  PhoneNumber: string
+    Name: string;
+    PhoneNumber: string;
+    ID: string
 }
 
-interface Truck{
-    name:string;
-    truck_brand:string;
-    model_no:string;
-    truck_number:string
-  }
+interface Truck {
+    ID: string,
+    truck_brand: string;
+    model_no: string;
+    truck_number: string
+}
+
+interface Helper {
+    name: string;
+    ID:string;
+}
 const AddTripInfor: React.FC = () => {
     type TripContextType = /*unresolved*/ any
     const { current, destination } = useContext<TripContextType | undefined>(TripContext);
     const [datetime, setDatetime] = useState<string>('2025-01-01T00:00:00');
     const [tripTask, setTripTask] = useState<string>('');      // State for trip task
+    const [assignHelper, setAssignHelper] = useState<string>('');
     const [assignDriver, setAssignDriver] = useState<string>(''); // State for assigned driver
     const [assignTruck, setAssignTruck] = useState<string>('');   // State for assigned truck
     const [loadCarrying, setLoadCarrying] = useState<string>(''); // State for load carrying
     const id = localStorage.getItem('id')
     const bearer_token = localStorage.getItem('token');
-    
-      const [drivers, setDrivers] = useState<Driver[]>([]);
-      
-        const [trucks,setTrucks]= useState<Truck[]>([]);
-  
+    const [drivers, setDrivers] = useState<Driver[]>([]);
+    const [helpers, setHelpers] = useState<Helper[]>([]);
+    const [trucks, setTrucks] = useState<Truck[]>([]);
+
     const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${bearer_token}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearer_token}`
     }
 
     const handleDatetimeChange = (event: any) => {
         setDatetime(event.target.value);
         console.log(datetime) // Update the state with the new datetime value
     };
-    
-    const handleForm=(e:any)=>{
+
+    const handleForm = (e: any) => {
         e.preventDefault();
-        const inputs={
-            start_location:current,
-            destination:destination,
-            task_name:tripTask,
-            load_carrying:loadCarrying,
-            date_time:datetime,
+        const inputs = {
+            start_location: current,
+            destination: destination,
+            task_name: tripTask,
+            load_carrying: loadCarrying,
+            date_time: datetime,
+            truck_id: assignTruck,
+            driver_id: assignDriver,
+            helper_id:assignHelper,
+            current_location: 'delhi',
+            status: 'Pending',
         }
         console.log(inputs);
     }
-      useEffect(() => {
+    useEffect(() => {
         const getDrivers = async (id: any) => {
-          try {
-            const response = await CapacitorHttp.request({
-              url: getDriver(id),
-              headers: headers,
-              method: 'GET'
-            })
-            console.log(response);
-            console.log(response.data.drivers.length);
-    
-            if (response.data.drivers.length >= 0) {
-              setDrivers(response.data.drivers);
+            try {
+                const response = await CapacitorHttp.request({
+                    url: getDriver(id),
+                    headers: headers,
+                    method: 'GET'
+                })
+                console.log(response);
+                console.log(response.data.drivers.length);
+
+                if (response.data.drivers.length >= 0) {
+                    setDrivers(response.data.drivers);
+                }
+            } catch (err) {
+                console.error("fetching driver data", err);
             }
-          } catch (err) {
-            console.error("fetching driver data", err);
-          }
         }
         getDrivers(id);
 
-        const getTrucks=async(id:any)=>{
-                try{
-                  const response= await CapacitorHttp.request({
-                    url:getTruck(id),
-                    headers:headers,
-                    method:'GET'
-                  })
-                  console.log(response);
-                  console.log(response.data.trucks.length);
-                  
-                  if(response.data.trucks.length >= 0){
+        const getTrucks = async (id: any) => {
+            try {
+                const response = await CapacitorHttp.request({
+                    url: getTruck(id),
+                    headers: headers,
+                    method: 'GET'
+                })
+                console.log(response);
+                console.log(response.data.trucks.length);
+
+                if (response.data.trucks.length >= 0) {
                     setTrucks(response.data.trucks);
-                  }
-                }catch(err){
-                  console.error("fetching truck data",err);
                 }
-              }
-              getTrucks(id);
-    
-        return () => {
-          setDrivers([])
-          setTrucks([])
+            } catch (err) {
+                console.error("fetching truck data", err);
+            }
         }
-      }, [id]);
+        getTrucks(id);
+
+        const getHelpers = async (id: any) => {
+            try {
+                const response = await CapacitorHttp.request({
+                    url: getHelper(id),
+                    headers: headers,
+                    method: 'GET'
+                })
+                console.log(response);
+                console.log(response.data.helpers.length);
+
+                if (response.data.helpers.length >= 0) {
+                    setHelpers(response.data.helpers);
+                }
+            } catch (err) {
+                console.error("fetching Helper data", err);
+            }
+        }
+        getHelpers(id);
+
+        return () => {
+            setDrivers([])
+            setTrucks([])
+            setHelpers([])
+        }
+    }, [id]);
     return (
         <IonPage>
             <IonHeader >
@@ -178,10 +209,10 @@ const AddTripInfor: React.FC = () => {
 
                             >
                                 {
-                                    trucks.map((truck,index)=>(
-                                        <IonSelectOption>{truck.truck_number}</IonSelectOption>
+                                    trucks.map((truck, index) => (
+                                        <IonSelectOption value={truck.ID}>{truck.truck_number}</IonSelectOption>
                                     ))
-                                }   
+                                }
                             </IonSelect>
                         </IonItem>
 
@@ -197,13 +228,31 @@ const AddTripInfor: React.FC = () => {
                                 onIonChange={(e) => setAssignDriver(e.detail.value!)}
                             >
                                 {/* <IonSelectOption value="">Select Driver</IonSelectOption> */}
-                                { drivers.map((driver,index)=>(
-                                    <IonSelectOption >{driver.Name}</IonSelectOption>
+                                {drivers.map((driver, index) => (
+                                    <IonSelectOption value={driver.ID}>{driver.Name}</IonSelectOption>
+                                ))}
+                            </IonSelect>
+                        </IonItem>
+
+                        <IonItem className='m-1 w-full'>
+                            {/* <IonLabel>Assign driver</IonLabel> */}
+                            <IonSelect
+                                interface='popover'
+                                mode='md'
+                                label='Assign Helper'
+                                labelPlacement='floating'
+                                className='text-lg'
+                                value={assignHelper}
+                                onIonChange={(e) => setAssignHelper(e.detail.value!)}
+                            >
+                                {/* <IonSelectOption value="">Select Driver</IonSelectOption> */}
+                                {helpers.map((helper, index) => (
+                                    <IonSelectOption value={helper.ID}>{helper.name}</IonSelectOption>
                                 ))}
                             </IonSelect>
                         </IonItem>
                     </IonList>
-                    <IonButton expand='block' type='submit' className='bottom-5 left-0 right-0 absolute m-2' size='large'>
+                    <IonButton expand='block' type='submit' className=' bottom-0 left-0 right-0  m-1' size='large'>
                         Continue
                     </IonButton>
                 </form>
