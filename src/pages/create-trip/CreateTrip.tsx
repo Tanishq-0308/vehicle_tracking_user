@@ -9,10 +9,12 @@ const CreateTrip: React.FC = () => {
     type TripContextType= any
     const {setCurrent, setDestination} = useContext<TripContextType | undefined>(TripContext)
     const [currentLocation,setCurrentLocation]=useState<string>('');
-    const [destinationLocation,setDestinationLocation]=useState('');
+    const [destinationLocation,setDestinationLocation]=useState<string>('');
     const handleSubmit=(e:any)=>{
         e.preventDefault();
-        console.log(currentLocation, destinationLocation);
+        console.log(currentLocation);
+        console.log(destinationLocation);
+        
         setCurrent(currentLocation)
         setDestination(destinationLocation)
         history.push('/add-trip-infor')
@@ -37,6 +39,7 @@ const CreateTrip: React.FC = () => {
                             <IonIcon slot='start' icon={ellipseOutline} className='text-green-500 bg-green-500 rounded-full text-lg  mr-4 mt-4'/>
                             <IonLabel position='stacked'>Trip start location</IonLabel>
                             <IonInput 
+                            required
                             placeholder='Current location' 
                             className='text-xl'
                             value={currentLocation}
@@ -49,9 +52,12 @@ const CreateTrip: React.FC = () => {
                         <IonItem>
                         <IonIcon slot='start' icon={ellipseOutline} className='text-red-500 bg-red-500 rounded-full text-lg  mr-4 mt-6'/>
                             <IonLabel position='stacked'>Trip end location</IonLabel>
-                            <IonInput placeholder='Destination location' className='text-xl'
-                                 value={destinationLocation}
-                                 onIonChange={(e) => setDestinationLocation(e.detail.value!)}
+                            <IonInput 
+                            required
+                            placeholder='Destination location' 
+                            className='text-xl'
+                            value={destinationLocation}
+                            onIonChange={(e) => setDestinationLocation(e.detail.value!)}
                             />
                         </IonItem>
                     </IonList>

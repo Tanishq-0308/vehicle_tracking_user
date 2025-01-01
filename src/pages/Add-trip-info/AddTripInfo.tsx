@@ -1,14 +1,103 @@
 import { IonButton, IonCol, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonModal, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar } from '@ionic/react';
 import { chevronBackSharp, ellipseOutline, locate } from 'ionicons/icons';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import TripContext from '../contexts/TripContext/TripContext';
+import { CapacitorHttp } from '@capacitor/core';
+import { getDriver, getTruck } from '../apis/apis';
+interface Driver {
+  Name: string;
+  PhoneNumber: string
+}
 
+interface Truck{
+    name:string;
+    truck_brand:string;
+    model_no:string;
+    truck_number:string
+  }
 const AddTripInfor: React.FC = () => {
     type TripContextType = /*unresolved*/ any
-    const {current,destination}= useContext<TripContextType | undefined>(TripContext);
+    const { current, destination } = useContext<TripContextType | undefined>(TripContext);
+    const [datetime, setDatetime] = useState<string>('2025-01-01T00:00:00');
+    const [tripTask, setTripTask] = useState<string>('');      // State for trip task
+    const [assignDriver, setAssignDriver] = useState<string>(''); // State for assigned driver
+    const [assignTruck, setAssignTruck] = useState<string>('');   // State for assigned truck
+    const [loadCarrying, setLoadCarrying] = useState<string>(''); // State for load carrying
+    const id = localStorage.getItem('id')
+    const bearer_token = localStorage.getItem('token');
+    
+      const [drivers, setDrivers] = useState<Driver[]>([]);
+      
+        const [trucks,setTrucks]= useState<Truck[]>([]);
+  
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${bearer_token}`
+    }
+
+    const handleDatetimeChange = (event: any) => {
+        setDatetime(event.target.value);
+        console.log(datetime) // Update the state with the new datetime value
+    };
+    
+    const handleForm=(e:any)=>{
+        e.preventDefault();
+        const inputs={
+            start_location:current,
+            destination:destination,
+            task_name:tripTask,
+            load_carrying:loadCarrying,
+            date_time:datetime,
+        }
+        console.log(inputs);
+    }
+      useEffect(() => {
+        const getDrivers = async (id: any) => {
+          try {
+            const response = await CapacitorHttp.request({
+              url: getDriver(id),
+              headers: headers,
+              method: 'GET'
+            })
+            console.log(response);
+            console.log(response.data.drivers.length);
+    
+            if (response.data.drivers.length >= 0) {
+              setDrivers(response.data.drivers);
+            }
+          } catch (err) {
+            console.error("fetching driver data", err);
+          }
+        }
+        getDrivers(id);
+
+        const getTrucks=async(id:any)=>{
+                try{
+                  const response= await CapacitorHttp.request({
+                    url:getTruck(id),
+                    headers:headers,
+                    method:'GET'
+                  })
+                  console.log(response);
+                  console.log(response.data.trucks.length);
+                  
+                  if(response.data.trucks.length >= 0){
+                    setTrucks(response.data.trucks);
+                  }
+                }catch(err){
+                  console.error("fetching truck data",err);
+                }
+              }
+              getTrucks(id);
+    
+        return () => {
+          setDrivers([])
+          setTrucks([])
+        }
+      }, [id]);
     return (
         <IonPage>
-             <IonHeader >
+            <IonHeader >
                 <IonToolbar className=' IonToolbar' >
                     <div className='flex items-center'>
                         <IonButton routerLink='/create-trip' className='text-white' fill='clear'>
@@ -18,79 +107,105 @@ const AddTripInfor: React.FC = () => {
                 </IonToolbar>
             </IonHeader>
             <IonContent color={'dark'}>
-                <form className='form mt-10 mx-2'>
+                <form className='form mt-10 mx-2' onSubmit={handleForm}>
                     <IonList className='border-2 rounded-xl m-1'>
                         <IonItem>
-                            <IonIcon slot='start' icon={ellipseOutline} className='text-green-500 bg-green-500 rounded-full text-lg  mr-4 mt-4'/>
+                            <IonIcon slot='start' icon={ellipseOutline} className='text-green-500 bg-green-500 rounded-full text-lg  mr-4 mt-4' />
                             <IonLabel position='stacked'>Trip start location</IonLabel>
-                            <IonInput 
-                            placeholder='Current location' 
-                            className='text-xl'
-                            value={current}
+                            <IonInput
+                                placeholder='Current location'
+                                className='text-xl'
+                                value={current}
                             />
-                            <IonIcon icon={locate} slot='end' className='mt-5'/>
+                            <IonIcon icon={locate} slot='end' className='mt-5' />
                         </IonItem>
                         <IonItem>
-                        <IonIcon slot='start' icon={ellipseOutline} className='text-red-500 bg-red-500 rounded-full text-lg  mr-4 mt-6'/>
+                            <IonIcon slot='start' icon={ellipseOutline} className='text-red-500 bg-red-500 rounded-full text-lg  mr-4 mt-6' />
                             <IonLabel position='stacked'>Trip end location</IonLabel>
-                            <IonInput 
-                            placeholder='Destination location' 
-                            className='text-xl'
-                            value={destination}
+                            <IonInput
+                                placeholder='Destination location'
+                                className='text-xl'
+                                value={destination}
                             />
                         </IonItem>
                     </IonList>
-                    <IonList  className='border-2 rounded-xl m-1'>
+                    <IonList className='border-2 rounded-xl m-1'>
                         <IonItem className='m-1'>
                             {/* <IonLabel position='stacked'>Add Trip Task</IonLabel> */}
-                            <IonInput 
-                            label='Add Trip Task'
-                                    labelPlacement='floating'
-                            type='text'
-                            className='text-xl'
-                            placeholder='Chemical delivery'
+                            <IonInput
+                                label='Add Trip Task'
+                                labelPlacement='floating'
+                                type='text'
+                                className='text-xl'
+                                placeholder='Chemical delivery'
+                                value={tripTask}
+                                onIonChange={(e) => setTripTask(e.detail.value!)}
                             ></IonInput>
                         </IonItem>
                         <IonItem className='m-1'>
-                                    {/* <IonLabel position='stacked'>Enter Load Carrying (optional)</IonLabel> */}
-                                    <IonInput
-                                    label='Enter Load Carrying'
-                                    labelPlacement='floating'
-                                    type='number'
-                                        className='text-xl'
-                                        placeholder='16.2kg'
-                                    ></IonInput>
-                                </IonItem>
-                       
+                            {/* <IonLabel position='stacked'>Enter Load Carrying (optional)</IonLabel> */}
+                            <IonInput
+                                label='Enter Load Carrying'
+                                labelPlacement='floating'
+                                type='number'
+                                className='text-xl'
+                                placeholder='16.2kg'
+                                value={loadCarrying}
+                                onIonChange={(e) => setLoadCarrying(e.detail.value!)}
+                            ></IonInput>
+                        </IonItem>
+
                         <IonItem className=' m-1 text-[19px] ' >
                             <IonLabel position='stacked' className='m-1'>Select Data & Time</IonLabel>
                             <IonDatetimeButton datetime='datetime' className='mx-16 my-6'></IonDatetimeButton>
-                                <IonModal keepContentsMounted={true} >
-                                    <IonDatetime id='datetime'></IonDatetime>
-                                </IonModal>
+                            <IonModal keepContentsMounted={true} >
+                                <IonDatetime
+                                    id='datetime'
+                                    value={datetime}
+                                    onIonChange={handleDatetimeChange}
+                                ></IonDatetime>
+                            </IonModal>
                         </IonItem>
 
                         <IonItem className='m-1 w-full'>
                             {/* <IonLabel >Assign truck</IonLabel> */}
-                            <IonSelect mode='md' interface='popover' label='Assign Truck' labelPlacement='floating' className='text-lg '>
-                                <IonSelectOption value='1'>gty 1012</IonSelectOption>
-                                <IonSelectOption>gty 1234</IonSelectOption>
-                                <IonSelectOption>gty 1224</IonSelectOption>
+                            <IonSelect mode='md' interface='popover'
+                                label='Assign Truck'
+                                labelPlacement='floating'
+                                className='text-lg '
+                                value={assignTruck}
+                                onIonChange={(e) => setAssignTruck(e.detail.value!)}
+
+                            >
+                                {
+                                    trucks.map((truck,index)=>(
+                                        <IonSelectOption>{truck.truck_number}</IonSelectOption>
+                                    ))
+                                }   
                             </IonSelect>
                         </IonItem>
 
                         <IonItem className='m-1 w-full'>
                             {/* <IonLabel>Assign driver</IonLabel> */}
-                            <IonSelect interface='popover' mode='md' label='Assign Driver' labelPlacement='floating' className='text-lg'>
-                                <IonSelectOption>peter </IonSelectOption>
-                                <IonSelectOption>george</IonSelectOption>
-                                <IonSelectOption>tonny</IonSelectOption>
+                            <IonSelect
+                                interface='popover'
+                                mode='md'
+                                label='Assign Driver'
+                                labelPlacement='floating'
+                                className='text-lg'
+                                value={assignDriver}
+                                onIonChange={(e) => setAssignDriver(e.detail.value!)}
+                            >
+                                {/* <IonSelectOption value="">Select Driver</IonSelectOption> */}
+                                { drivers.map((driver,index)=>(
+                                    <IonSelectOption >{driver.Name}</IonSelectOption>
+                                ))}
                             </IonSelect>
                         </IonItem>
                     </IonList>
-                <IonButton expand='block' type='submit' className='bottom-5 left-0 right-0 absolute m-2' size='large'>
-                    Continue
-                </IonButton>
+                    <IonButton expand='block' type='submit' className='bottom-5 left-0 right-0 absolute m-2' size='large'>
+                        Continue
+                    </IonButton>
                 </form>
             </IonContent>
         </IonPage>
