@@ -1,9 +1,9 @@
-import { IonButton, IonCol, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonModal, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonModal, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToast, IonToolbar } from '@ionic/react';
 import { chevronBackSharp, ellipseOutline, locate } from 'ionicons/icons';
 import React, { useContext, useEffect, useState } from 'react';
 import TripContext from '../contexts/TripContext/TripContext';
 import { CapacitorHttp } from '@capacitor/core';
-import { getDriver, getHelper, getTruck } from '../apis/apis';
+import { addTrip, getDriver, getHelper, getTruck } from '../apis/apis';
 interface Driver {
     Name: string;
     PhoneNumber: string;
@@ -19,22 +19,25 @@ interface Truck {
 
 interface Helper {
     name: string;
-    ID:string;
+    ID: string;
 }
 const AddTripInfor: React.FC = () => {
     type TripContextType = /*unresolved*/ any
     const { current, destination } = useContext<TripContextType | undefined>(TripContext);
     const [datetime, setDatetime] = useState<string>('2025-01-01T00:00:00');
     const [tripTask, setTripTask] = useState<string>('');      // State for trip task
-    const [assignHelper, setAssignHelper] = useState<string>('');
-    const [assignDriver, setAssignDriver] = useState<string>(''); // State for assigned driver
-    const [assignTruck, setAssignTruck] = useState<string>('');   // State for assigned truck
+    const [assignHelper, setAssignHelper] = useState('');
+    const [assignDriver, setAssignDriver] = useState(''); // State for assigned driver
+    const [assignTruck, setAssignTruck] = useState('');   // State for assigned truck
     const [loadCarrying, setLoadCarrying] = useState<string>(''); // State for load carrying
     const id = localStorage.getItem('id')
     const bearer_token = localStorage.getItem('token');
     const [drivers, setDrivers] = useState<Driver[]>([]);
     const [helpers, setHelpers] = useState<Helper[]>([]);
     const [trucks, setTrucks] = useState<Truck[]>([]);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
+    const [toastColor, setToastColor] = useState('');
 
     const headers = {
         'Content-Type': 'application/json',
@@ -46,21 +49,47 @@ const AddTripInfor: React.FC = () => {
         console.log(datetime) // Update the state with the new datetime value
     };
 
-    const handleForm = (e: any) => {
+    const handleForm = async (e: any) => {
         e.preventDefault();
+
+        const formattedDatetime = datetime.endsWith('Z') ? datetime : datetime + 'Z';
         const inputs = {
             start_location: current,
             destination: destination,
             task_name: tripTask,
             load_carrying: loadCarrying,
-            date_time: datetime,
+            date_time: formattedDatetime,
             truck_id: assignTruck,
             driver_id: assignDriver,
-            helper_id:assignHelper,
+            helper_id: assignHelper,
             current_location: 'delhi',
             status: 'Pending',
         }
-        console.log(inputs);
+        console.log(inputs, headers);
+
+        try {
+            const response = await CapacitorHttp.request({
+                url: addTrip(),
+                method: 'POST',
+                headers: headers,
+                data: inputs
+            })
+            // const response = await axios.post(driverInfo(), input, { headers })
+            console.log(response);
+
+            if (response.status === 201) {
+                setToastMessage('Trip Added')
+                setToastColor('success')
+                setShowToast(true)
+            }
+        } catch (err: any) {
+            // if (err.response.status === 409) {
+            //     setToastMessage('Already exists')
+            //     setToastColor('danger')
+            //     setShowToast(true)
+            // }
+            console.log(err);
+        }
     }
     useEffect(() => {
         const getDrivers = async (id: any) => {
@@ -178,7 +207,7 @@ const AddTripInfor: React.FC = () => {
                             <IonInput
                                 label='Enter Load Carrying'
                                 labelPlacement='floating'
-                                type='number'
+                                type='text'
                                 className='text-xl'
                                 placeholder='16.2kg'
                                 value={loadCarrying}
@@ -210,7 +239,7 @@ const AddTripInfor: React.FC = () => {
                             >
                                 {
                                     trucks.map((truck, index) => (
-                                        <IonSelectOption value={truck.ID}>{truck.truck_number}</IonSelectOption>
+                                        <IonSelectOption value={truck.ID} key={index}>{truck.truck_number}</IonSelectOption>
                                     ))
                                 }
                             </IonSelect>
@@ -229,7 +258,7 @@ const AddTripInfor: React.FC = () => {
                             >
                                 {/* <IonSelectOption value="">Select Driver</IonSelectOption> */}
                                 {drivers.map((driver, index) => (
-                                    <IonSelectOption value={driver.ID}>{driver.Name}</IonSelectOption>
+                                    <IonSelectOption value={driver.ID} key={index}>{driver.Name}</IonSelectOption>
                                 ))}
                             </IonSelect>
                         </IonItem>
@@ -247,7 +276,7 @@ const AddTripInfor: React.FC = () => {
                             >
                                 {/* <IonSelectOption value="">Select Driver</IonSelectOption> */}
                                 {helpers.map((helper, index) => (
-                                    <IonSelectOption value={helper.ID}>{helper.name}</IonSelectOption>
+                                    <IonSelectOption value={helper.ID} key={index}>{helper.name}</IonSelectOption>
                                 ))}
                             </IonSelect>
                         </IonItem>
@@ -256,6 +285,14 @@ const AddTripInfor: React.FC = () => {
                         Continue
                     </IonButton>
                 </form>
+                <IonToast
+                    isOpen={showToast}
+                    message={toastMessage}
+                    duration={2000}
+                    color={toastColor}
+                    position='top'
+                    onDidDismiss={() => setShowToast(false)} // Hide toast after it disappears
+                />
             </IonContent>
         </IonPage>
     );

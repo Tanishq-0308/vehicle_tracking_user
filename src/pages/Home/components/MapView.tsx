@@ -18,6 +18,8 @@ const MapView: React.FC = () => {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         });
+        
+        
       } catch (error) {
         console.error('Error getting location', error);
         alert('Unable to retrieve location. Please enable location services.');
@@ -29,6 +31,7 @@ const MapView: React.FC = () => {
 
   useEffect(() => {
     if (location && mapRef.current) {
+      console.log(location);
       // Initialize map only when location is available
       if (!mapInstance.current) {
         mapInstance.current = L.map(mapRef.current, {

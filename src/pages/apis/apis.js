@@ -26,3 +26,6 @@ export const getDriver=(id)=>
 
 export const getHelper=(id)=>
     `${port}/api/v1/helpers?admin_id=${id}`
+
+export const addTrip=()=>
+    `${port}/api/v1/add-trip`
