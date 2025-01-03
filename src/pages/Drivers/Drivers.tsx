@@ -76,7 +76,7 @@ const Drivers: React.FC = () => {
             </div>
           </IonButton>
         </IonToolbar>
-        <div className='tab2'>
+        {/* <div className='tab2'>
           <IonSegment scrollable={true} color={'warning'} value='default'>
             <IonSegmentButton value='default'>
               In Transit
@@ -91,7 +91,7 @@ const Drivers: React.FC = () => {
               In Garage
             </IonSegmentButton>
           </IonSegment>
-        </div>
+        </div> */}
       </IonHeader>
       <IonContent className="ion-padding-top" color={'dark'} >
         <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>

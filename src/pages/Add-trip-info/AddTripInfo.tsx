@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import TripContext from '../contexts/TripContext/TripContext';
 import { CapacitorHttp } from '@capacitor/core';
 import { addTrip, getDriver, getHelper, getTruck } from '../apis/apis';
+import { useHistory } from 'react-router';
 interface Driver {
     Name: string;
     PhoneNumber: string;
@@ -30,7 +31,7 @@ const AddTripInfor: React.FC = () => {
     const [assignDriver, setAssignDriver] = useState(''); // State for assigned driver
     const [assignTruck, setAssignTruck] = useState('');   // State for assigned truck
     const [loadCarrying, setLoadCarrying] = useState<string>(''); // State for load carrying
-    const id = localStorage.getItem('id')
+    const id = Number(localStorage.getItem('id'))
     const bearer_token = localStorage.getItem('token');
     const [drivers, setDrivers] = useState<Driver[]>([]);
     const [helpers, setHelpers] = useState<Helper[]>([]);
@@ -38,7 +39,7 @@ const AddTripInfor: React.FC = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
     const [toastColor, setToastColor] = useState('');
-
+    const history= useHistory();
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${bearer_token}`
@@ -64,6 +65,7 @@ const AddTripInfor: React.FC = () => {
             helper_id: assignHelper,
             current_location: 'delhi',
             status: 'Pending',
+            admin_id:id
         }
         console.log(inputs, headers);
 
@@ -81,6 +83,7 @@ const AddTripInfor: React.FC = () => {
                 setToastMessage('Trip Added')
                 setToastColor('success')
                 setShowToast(true)
+                history.push('/app','root')
             }
         } catch (err: any) {
             // if (err.response.status === 409) {
@@ -281,7 +284,7 @@ const AddTripInfor: React.FC = () => {
                             </IonSelect>
                         </IonItem>
                     </IonList>
-                    <IonButton expand='block' type='submit' className=' bottom-0 left-0 right-0  m-1' size='large'>
+                    <IonButton expand='block' type='submit' className='absolute bottom-0 left-0 right-0  m-1' size='large'>
                         Continue
                     </IonButton>
                 </form>

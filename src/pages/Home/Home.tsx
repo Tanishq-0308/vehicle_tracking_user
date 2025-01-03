@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
 import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locateOutline, locationOutline, map, phoneLandscape } from 'ionicons/icons';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -6,9 +6,24 @@ import MapView from './components/MapView';
 import truckImg from '../../assets/truck1.png'
 import AdminContext from '../contexts/AdminContext/AdminContext';
 import { CapacitorHttp } from '@capacitor/core';
-import { getProfile } from '../apis/apis';
+import { getProfile, getTrips } from '../apis/apis';
+import { format } from 'date-fns';
+
+interface Trip{
+  current_location: string;
+  task_name: string;
+  date_time: string;
+  ID: any;
+  status: string;
+  truck:{
+    model_no: string;
+    truck_brand: string;
+    truck_number:string
+  }
+}
 
 const Home: React.FC = () => {
+  const [trips,setTrips]=useState<Trip[]>([]);
   const [selectedSegment, setSelectedSegment] = useState('trip_history');
   const [selectedModalSegment, setSelectedModalSegment] = useState('about_trip');
   const modal = useRef<HTMLIonModalElement>(null);
@@ -17,8 +32,9 @@ const Home: React.FC = () => {
   type AdminContextType = /*unresolved*/ any
   const {setAdminName,setCompanyName}= useContext<AdminContextType | undefined>(AdminContext);
   const id = localStorage.getItem('id')
+    const [loading,setLoading]=useState(false)
+  const limit=4;
   const bearer_token = localStorage.getItem('token');
-
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${bearer_token}`
@@ -44,13 +60,48 @@ const Home: React.FC = () => {
       setCompanyName(response.data.profile.CompanyName)
       console.log(response.data.profile.Name);
       console.log(response.data.profile.CompanyName);
+      // console.log(response);
+      
       
     }catch(err){
       console.error("fetching admin data ",err);
     }
   }
   getAdminDetails();
+
+    const getTrip=async()=>{
+      try{
+        const response= await CapacitorHttp.request({
+          url:getTrips(id,limit),
+          method:'GET',
+          headers:headers
+        })
+        console.log(response.data.trips[0]);
+        setTrips(response.data.trips);
+        
+      }catch(err){
+        console.error("fetching trip data",err);
+        
+      }
+    }
+    getTrip();
   },[id])
+
+  const formatDateTime = (dateTimeString:any) => {
+    try{
+      const date = new Date(dateTimeString);
+      return format(date, 'MMMM d, yyyy h:mm a'); // Customize the format as needed
+    }catch(err){
+      console.error("date time error", err);
+      
+    }
+};
+
+const doRefresh=(ev:any)=>{
+  ev.detail.complete();
+  setLoading(prev=>!prev)
+}
+
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
@@ -87,13 +138,16 @@ const Home: React.FC = () => {
         </div>
       </IonHeader>
       <IonContent className='content'>
+        <IonRefresher slot='fixed' onIonRefresh={(ev)=>doRefresh(ev)}>
+                        <IonRefresherContent/>
+                      </IonRefresher>
         <IonSegmentView>
           {selectedSegment === 'trip_history' && (
             <>
               <IonSegmentContent id='trip_history'>
                 {
-                  [...Array(9)].map((_, index) => (
-                    <IonGrid key={index} onClick={() => setSelectedUser(index)}>
+                  trips.slice().reverse().map((trip, index) => (
+                    <IonGrid key={index} onClick={() => setSelectedUser(trip)}>
                       <IonRow >
                         <IonCol>
                           <div className='bg-white rounded-lg m-2'>
@@ -106,25 +160,25 @@ const Home: React.FC = () => {
                               </div>
                               <div className='flex w-full justify-between p-1 mx-2'>
                                 <h2 className="flex items-center text-lg font-bold leading-4 m-0">
-                                  GTY 1024
+                                  {trip.truck.truck_number}
                                   <sub className="text-gray-600 font-normal text-[12px] mx-1 my-0">
-                                    SCANIA R730
+                                    {trip.truck.truck_brand} {trip.truck.model_no}
                                   </sub>
                                 </h2>
-                                <span className="text-green-700  font-bold m-0">
-                                  In Transit
+                                <span className="text-green-700  font-bold m-0 uppercase">
+                                  {trip.status}
                                 </span>
                               </div>
                             </div>
                             <div className='px-3 py-1'>
                               <IonRow>
-                                <IonCol size="8">
+                                <IonCol size="6">
                                   <p className='text-gray-700 font-light'>Task</p>
-                                  <p className=' text-gray-600 font-normal'>Chemical Delivery</p>
+                                  <p className=' text-gray-600 font-normal'>{trip.task_name}</p>
                                 </IonCol>
                                 <IonCol size="">
                                   <p className='text-gray-700 font-light'>Departed</p>
-                                  <p className=' text-gray-600 font-normal'>20 June, 02:05pm</p>
+                                  <p className=' text-gray-600 font-normal'>{formatDateTime(trip.date_time)}</p>
                                 </IonCol>
                               </IonRow>
                             </div>
@@ -132,7 +186,7 @@ const Home: React.FC = () => {
                               <IonRow>
                                 <IonCol size='9'>
                                   <p className='text-gray-700 font-light'>Current Location</p>
-                                  <p className=' text-gray-600 font-normal'>1141, Hemiltone tower, Newyork, USA</p>
+                                  <p className=' text-gray-600 font-normal'>{trip.current_location}</p>
                                 </IonCol>
                                 <IonCol className='flex items-center justify-center '>
                                   <div>
@@ -193,10 +247,10 @@ const Home: React.FC = () => {
                       <img src={truckImg} alt="" className='rounded-[100%] bg-contain w-14 h-12' />
                     </div>
                     <div>
-                      <p className='font-bold text-lg'>GTY 1024
+                      <p className='font-bold text-lg'>{selectedUser?.truck.truck_number}
                       </p>
                       <p className='text-gray-600 font-light text-xs'>
-                        SCANIA R730
+                        {selectedUser?.truck.truck_brand} {selectedUser?.truck.model_no}
                       </p>
                     </div>
                   </div>
@@ -220,13 +274,13 @@ const Home: React.FC = () => {
                   <IonSegmentContent>
                     <div className='px-7 py-5'>
                       <IonRow>
-                        <IonCol size="8">
+                        <IonCol size="6">
                           <p className='text-gray-500 font-light text-sm'>Task</p>
-                          <p className=' text-gray-600 font-normal'>Chemical Delivery</p>
+                          <p className=' text-gray-600 font-normal'>{selectedUser?.task_name}</p>
                         </IonCol>
                         <IonCol size="">
                           <p className='text-gray-500 font-light text-sm'>Departed</p>
-                          <p className=' text-gray-600 font-normal'>20 June, 02:05pm</p>
+                          <p className=' text-gray-600 font-normal'>{formatDateTime(selectedUser?.date_time)}</p>
                         </IonCol>
                       </IonRow>
                     </div>
@@ -236,21 +290,21 @@ const Home: React.FC = () => {
                           <IonIcon icon={ellipseOutline} className='text-red-500 bg-red-500 rounded-full text-lg  mr-4 mt-2' />
                           <IonCol>
                             <p className='text-gray-500 font-light text-sm'>Trip start location</p>
-                            <p className=' text-gray-600 font-normal'>B11 Opera Tower, IDSR Bank, New York, USA</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.start_location}</p>
                           </IonCol>
                         </IonRow>
                         <IonRow className='my-5'>
                           <IonIcon icon={locationOutline} className=' rounded-full text-lg  mr-4 mt-4' />
                           <IonCol>
                             <p className='text-gray-500 font-light text-sm'>Current location</p>
-                            <p className=' text-gray-600 font-normal'>1141, Hemiltone tower, New York, USA</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.current_location}</p>
                           </IonCol>
                         </IonRow>
                         <IonRow className='my-5'>
                           <IonIcon icon={ellipseOutline} className='text-green-500 bg-green-500 rounded-full text-lg  mr-4 mt-5' />
                           <IonCol>
                             <p className='text-gray-500 font-light text-sm'>Trip end location</p>
-                            <p className=' text-gray-600 font-normal'>Neuro Chemical Factory, New York, USA</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.destination}</p>
                           </IonCol>
                         </IonRow>
                       </IonGrid>
@@ -265,17 +319,17 @@ const Home: React.FC = () => {
                         <IonRow className='px-7 py-4'>
                           <IonCol size="8">
                             <p className='text-gray-500 font-light text-sm'>Vehicle Model</p>
-                            <p className=' text-gray-600 font-normal'>SCAINIA R730</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.truck.truck_brand} {selectedUser?.truck.model_no}</p>
                           </IonCol>
                           <IonCol size="">
                             <p className='text-gray-500 font-light text-sm'>Vehicle Number</p>
-                            <p className=' text-gray-600 font-normal'>GTY 1024</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.truck.truck_number}</p>
                           </IonCol>
                         </IonRow>
                         <IonRow className='px-7 py-4'>
                           <IonCol size="8">
                             <p className='text-gray-500 font-light text-sm'>Max.Load Capacity</p>
-                            <p className=' text-gray-600 font-normal'>16.2 tonnes</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.load_carrying}</p>
                           </IonCol>
                           <IonCol size="">
                             <p className='text-blue-500 font-semibold'>Edit Vehicle info</p>
@@ -284,7 +338,7 @@ const Home: React.FC = () => {
                         <IonRow className='px-7 py-4'>
                           <IonCol size="9">
                             <p className='text-gray-500 font-light text-sm'>Driver</p>
-                            <p className=' text-gray-600 font-normal'>George Jackson (+91 9998887711)</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.driver.Name} ({selectedUser?.driver.PhoneNumber})</p>
                           </IonCol>
                           <IonCol size="">
                             <IonButton fill='clear'>
@@ -297,7 +351,7 @@ const Home: React.FC = () => {
                         <IonRow className='px-7 py-4'>
                           <IonCol size="9">
                             <p className='text-gray-500 font-light text-sm'>Helper</p>
-                            <p className=' text-gray-600 font-normal'>Tonny Willamson (+91 9998887711)</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.helper.name} ({selectedUser?.helper.phone_number})</p>
                           </IonCol>
                           <IonCol size="">
                             <IonButton fill='clear'>

@@ -1,10 +1,9 @@
-import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonItem, IonList, IonPage, IonRow, IonToast } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonItem, IonList, IonPage, IonRow, IonToast, useIonLoading } from '@ionic/react';
 import React, { useContext, useEffect, useState } from 'react';
 import './Signin.css'
 import { login } from '../apis/apis.js'
 import { useHistory } from 'react-router';
 import { CapacitorHttp } from '@capacitor/core';
-import AdminContext from '../contexts/AdminContext/AdminContext';
 
 const Signin: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -14,6 +13,7 @@ const Signin: React.FC = () => {
   const history = useHistory();
   const [toast,setToast]=useState(false);
   const [toastColor, setToastColor] = useState('');
+  const [present,dismiss]= useIonLoading();
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +62,11 @@ const Signin: React.FC = () => {
       localStorage.setItem('token', access_token);
       localStorage.setItem('id',adminId)
       if (response1.status === 200) {
-        history.push('/app')
+        await present('Logging in...');
+        setTimeout(async()=>{
+          dismiss();
+          history.push('/app')
+        },2000)
       } else {
         setToastMessage("User is not registered");
         setToastColor('danger')

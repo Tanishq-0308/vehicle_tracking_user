@@ -1,4 +1,4 @@
-import { IonBackButton, IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonBackButton, IonButton, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonPage, IonTitle, IonToolbar, useIonLoading } from '@ionic/react';
 import { atCircle, chevronBackSharp, ellipseOutline, locate, search } from 'ionicons/icons';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
@@ -13,8 +13,9 @@ const CreateTrip: React.FC = () => {
     const [currentLocation, setCurrentLocation] = useState<string>('');
     const [destinationLocation, setDestinationLocation] = useState<string>('');
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-    const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState<any[]>([]);
+    const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
+    const [present,dismiss]= useIonLoading();
     const handleSubmit = (e: any) => {
         e.preventDefault();
         console.log(currentLocation);
@@ -27,10 +28,9 @@ const CreateTrip: React.FC = () => {
         setDestinationLocation('');
     }
 
-    const handleInputChange = async (e: any) => {
+    const handleStartLocation = async (e: any) => {
         const value = e.target.value;
-        setCurrentLocation(e.detail.value!)
-        setQuery(value);
+        setCurrentLocation(value)
 
         if (value.length > 2) {
             try {
@@ -45,10 +45,34 @@ const CreateTrip: React.FC = () => {
             setSuggestions([]);
         }
     };
+
     const handleSuggestionClick = (name: any) => {
         setCurrentLocation(name)
-        setQuery(name);
         setSuggestions([]);
+    };
+
+    const handleEndLocation = async (e: any) => {
+        const value = e.target.value;
+        setDestinationLocation(value)
+        console.log(value);
+        
+
+        if (value.length > 2) {
+            try {
+                const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${value}`);
+                setEndSuggestions(response.data);
+                console.log(response);
+
+            } catch (error) {
+                console.error('Error fetching suggestions:', error);
+            }
+        } else {
+            setEndSuggestions([]);
+        }
+    };
+    const handleSuggestion = (name: any) => {
+        setDestinationLocation(name)
+        setEndSuggestions([]);
     };
 
     const getCurrentLocation = async () => {
@@ -62,19 +86,19 @@ const CreateTrip: React.FC = () => {
             console.error('Error getting location', error);
             alert('Unable to retrieve location. Please enable location services.');
         }
+        present('Getting Location...')
+        setTimeout(() => {
+            dismiss();
+            getLocation();
+        }, 500);
     };
     
-    useEffect(()=>{
-        getLocation();
-
-    },[location])
-
     const getLocation=async()=>{
         console.log("current location",location);
         try {
             const response = await axios.get(`https://geocode.maps.co/reverse?lat=${location?.lat}&lon=${location?.lng}&api_key=6776781c0d0d1650050003kwef82204`);
             console.log(response.data.display_name);
-            setQuery(response.data.display_name)
+            setCurrentLocation(response.data.display_name)
 
         } catch (error) {
             console.error('Error fetching suggestions:', error);
@@ -101,10 +125,10 @@ const CreateTrip: React.FC = () => {
                                 required
                                 placeholder='Current location'
                                 className='text-xl'
-                                value={query}
-                                onIonChange={handleInputChange}
+                                value={currentLocation}
+                                onIonChange={handleStartLocation}
                             />
-                            <IonIcon icon={search} slot='end' className='mt-5' />
+                            <IonIcon icon={search} slot='end' className='mt-[35px]' onClick={handleStartLocation}/>
                         </IonItem>
                         <IonButton className='m-2' expand='full' onClick={getCurrentLocation}>
                         <IonIcon icon={locate}  className='text-3xl' />
@@ -130,10 +154,22 @@ const CreateTrip: React.FC = () => {
                                 placeholder='Destination location'
                                 className='text-xl'
                                 value={destinationLocation}
-                                onIonChange={(e) => setDestinationLocation(e.detail.value!)}
+                                onIonChange={handleEndLocation}
                             />
+                            <IonIcon icon={search} slot='end' className='mt-[33px]' onClick={handleEndLocation}/>
                         </IonItem>
                     </IonList>
+                    <div className='m-2'>
+                        {endSuggestions.length > 0 && (
+                            <ul className="suggestions h-[100px] overflow-auto" >
+                                {endSuggestions.map((suggestion) => (
+                                    <li className=' bg-white text-black p-1 border-b ' key={suggestion.place_id} onClick={() => handleSuggestion(suggestion.display_name)}>
+                                        {suggestion.display_name}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                     <IonButton expand='block' type='submit' className='bottom-5 left-0 right-0 absolute m-2' size='large'>
                         Continue
                     </IonButton>
