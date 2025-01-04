@@ -1,9 +1,18 @@
-import { IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCard, IonCardContent, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonMenuButton, IonPage, IonRow, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import './profile.css'
 import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 
 const Profile: React.FC = () => {
+    const ionRouter = useIonRouter();
+          const router= useIonRouter();
+          document.addEventListener('ionBackButton', (event: any) => {
+            event.detail.register(-1, () => {
+              if (!ionRouter.canGoBack()) {
+                router.push('/app','root')
+              }
+            });
+          });
     return (
         <IonPage>
             <IonHeader className='ion-no-border'>

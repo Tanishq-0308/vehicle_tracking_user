@@ -16,18 +16,21 @@ const CreateTrip: React.FC = () => {
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [endSuggestions, setEndSuggestions] = useState<any[]>([]);
     const [present,dismiss]= useIonLoading();
+
+    // Form submit 
     const handleSubmit = (e: any) => {
         e.preventDefault();
         console.log(currentLocation);
         console.log(destinationLocation);
 
-        setCurrent(currentLocation)
-        setDestination(destinationLocation)
+        // setCurrent(currentLocation)
+        // setDestination(destinationLocation)
         history.push('/add-trip-infor')
         setCurrentLocation('');
         setDestinationLocation('');
     }
 
+    // Fetch the suggestions for start location 
     const handleStartLocation = async (e: any) => {
         const value = e.target.value;
         setCurrentLocation(value)
@@ -46,17 +49,20 @@ const CreateTrip: React.FC = () => {
         }
     };
 
+    // Suggestion Handler for start location
     const handleSuggestionClick = (name: any) => {
-        setCurrentLocation(name)
+        // setCurrentLocation(name)
+        console.log(name);
+        setCurrentLocation(name.display_name)
+        setCurrent(name)
         setSuggestions([]);
     };
 
+    // Fetch the suggestions for end location
     const handleEndLocation = async (e: any) => {
         const value = e.target.value;
         setDestinationLocation(value)
         console.log(value);
-        
-
         if (value.length > 2) {
             try {
                 const response = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${value}`);
@@ -70,11 +76,15 @@ const CreateTrip: React.FC = () => {
             setEndSuggestions([]);
         }
     };
+
+    // Suggestion Handler for end location
     const handleSuggestion = (name: any) => {
-        setDestinationLocation(name)
+        setDestinationLocation(name.display_name)
+        setDestination(name)
         setEndSuggestions([]);
     };
 
+    // Gets the Current location's long and lat
     const getCurrentLocation = async () => {
         try {
             const position = await Geolocation.getCurrentPosition();
@@ -93,11 +103,13 @@ const CreateTrip: React.FC = () => {
         }, 500);
     };
     
+    // Converts the long and lat in address
     const getLocation=async()=>{
         console.log("current location",location);
         try {
             const response = await axios.get(`https://geocode.maps.co/reverse?lat=${location?.lat}&lon=${location?.lng}&api_key=6776781c0d0d1650050003kwef82204`);
-            console.log(response.data.display_name);
+            console.log("current location",response.data);
+            setCurrent(response.data)
             setCurrentLocation(response.data.display_name)
 
         } catch (error) {
@@ -138,7 +150,7 @@ const CreateTrip: React.FC = () => {
                         {suggestions.length > 0 && (
                             <ul className="suggestions h-[100px] overflow-auto" >
                                 {suggestions.map((suggestion) => (
-                                    <li className=' bg-white text-black p-1 border-b ' key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion.display_name)}>
+                                    <li className=' bg-white text-black p-1 border-b ' key={suggestion.place_id} onClick={() => handleSuggestionClick(suggestion)}>
                                         {suggestion.display_name}
                                     </li>
                                 ))}
@@ -163,7 +175,7 @@ const CreateTrip: React.FC = () => {
                         {endSuggestions.length > 0 && (
                             <ul className="suggestions h-[100px] overflow-auto" >
                                 {endSuggestions.map((suggestion) => (
-                                    <li className=' bg-white text-black p-1 border-b ' key={suggestion.place_id} onClick={() => handleSuggestion(suggestion.display_name)}>
+                                    <li className=' bg-white text-black p-1 border-b ' key={suggestion.place_id} onClick={() => handleSuggestion(suggestion)}>
                                         {suggestion.display_name}
                                     </li>
                                 ))}

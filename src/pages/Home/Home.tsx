@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter, useIonViewWillEnter } from '@ionic/react';
 import './Home.css';
 import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locateOutline, locationOutline, map, phoneLandscape } from 'ionicons/icons';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -8,37 +8,41 @@ import AdminContext from '../contexts/AdminContext/AdminContext';
 import { CapacitorHttp } from '@capacitor/core';
 import { getProfile, getTrips } from '../apis/apis';
 import { format } from 'date-fns';
+import { App } from '@capacitor/app';
+import { Preferences } from '@capacitor/preferences';
+import { useHistory } from 'react-router';
 
-interface Trip{
+interface Trip {
   current_location: string;
   task_name: string;
   date_time: string;
   ID: any;
   status: string;
-  truck:{
+  truck: {
     model_no: string;
     truck_brand: string;
-    truck_number:string
+    truck_number: string
   }
 }
 
 const Home: React.FC = () => {
-  const [trips,setTrips]=useState<Trip[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedSegment, setSelectedSegment] = useState('trip_history');
   const [selectedModalSegment, setSelectedModalSegment] = useState('about_trip');
   const modal = useRef<HTMLIonModalElement>(null);
   const input = useRef<HTMLIonInputElement>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   type AdminContextType = /*unresolved*/ any
-  const {setAdminName,setCompanyName}= useContext<AdminContextType | undefined>(AdminContext);
+  const { setAdminName, setCompanyName } = useContext<AdminContextType | undefined>(AdminContext);
   const id = localStorage.getItem('id')
-    const [loading,setLoading]=useState(false)
-  const limit=4;
+  const [loading, setLoading] = useState(false)
+  const history= useHistory();
+  const limit = 4;
   const bearer_token = localStorage.getItem('token');
-    const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${bearer_token}`
-    }
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${bearer_token}`
+  }
 
   const handleSegmentChange = (event: CustomEvent) => {
     setSelectedSegment(event.detail.value);
@@ -48,59 +52,93 @@ const Home: React.FC = () => {
     setSelectedModalSegment(event.detail.value)
   }
 
-  useEffect(()=>{
-    const getAdminDetails=async()=>{
-    try{
-      const response=await CapacitorHttp.request({
-              url: getProfile(id),
-              method: 'GET',
-              headers:headers,
-            })
-      setAdminName(response.data.profile.Name)
-      setCompanyName(response.data.profile.CompanyName)
-      console.log(response.data.profile.Name);
-      console.log(response.data.profile.CompanyName);
-      // console.log(response);
-      
-      
-    }catch(err){
-      console.error("fetching admin data ",err);
-    }
-  }
-  getAdminDetails();
+  useEffect(() => {
+    const getAdminDetails = async () => {
+      try {
+        const response = await CapacitorHttp.request({
+          url: getProfile(id),
+          method: 'GET',
+          headers: headers,
+        })
+        setAdminName(response.data.profile.Name)
+        setCompanyName(response.data.profile.CompanyName)
+        console.log(response.data.profile.Name);
+        console.log(response.data.profile.CompanyName);
+        // console.log(response);
 
-    const getTrip=async()=>{
-      try{
-        const response= await CapacitorHttp.request({
-          url:getTrips(id,limit),
-          method:'GET',
-          headers:headers
+
+      } catch (err) {
+        console.error("fetching admin data ", err);
+      }
+    }
+    getAdminDetails();
+
+    const getTrip = async () => {
+      try {
+        const response = await CapacitorHttp.request({
+          url: getTrips(id, limit),
+          method: 'GET',
+          headers: headers
         })
         console.log(response.data.trips[0]);
         setTrips(response.data.trips);
-        
-      }catch(err){
-        console.error("fetching trip data",err);
-        
+
+      } catch (err) {
+        console.error("fetching trip data", err);
       }
     }
     getTrip();
-  },[id])
+  }, [id,loading])
 
-  const formatDateTime = (dateTimeString:any) => {
-    try{
+  const formatDateTime = (dateTimeString: any) => {
+    try {
       const date = new Date(dateTimeString);
       return format(date, 'MMMM d, yyyy h:mm a'); // Customize the format as needed
-    }catch(err){
+    } catch (err) {
       console.error("date time error", err);
-      
-    }
-};
 
-const doRefresh=(ev:any)=>{
-  ev.detail.complete();
-  setLoading(prev=>!prev)
-}
+    }
+  };
+
+  const doRefresh = (ev: any) => {
+    ev.detail.complete();
+    setLoading(prev => !prev)
+  }
+
+  const ionRouter = useIonRouter();
+  document.addEventListener('ionBackButton',async (event: any) => {
+    const pass= localStorage.getItem('id')
+
+    event.detail.register(-1, async() => {
+      if (pass) {
+        console.log("pass valuedd",pass);
+        
+        const ans = window.confirm("Are you sure to exit ?")
+        if(ans){
+          // await Preferences.remove({key:'signin'});
+          App.exitApp();
+
+        }
+        else{
+          history.push('/app');
+        }
+      }
+    });
+  });
+
+  useIonViewWillEnter(()=>{
+    console.log("started");
+    
+    const backbutton=()=>{
+      const pass= localStorage.getItem('id');
+      if(pass){
+        console.log("pass valued",pass);
+        console.log(window.localStorage);
+        
+      }
+    }
+    backbutton();
+  })
 
   return (
     <IonPage>
@@ -138,9 +176,9 @@ const doRefresh=(ev:any)=>{
         </div>
       </IonHeader>
       <IonContent className='content'>
-        <IonRefresher slot='fixed' onIonRefresh={(ev)=>doRefresh(ev)}>
-                        <IonRefresherContent/>
-                      </IonRefresher>
+        <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
+          <IonRefresherContent />
+        </IonRefresher>
         <IonSegmentView>
           {selectedSegment === 'trip_history' && (
             <>
@@ -338,7 +376,7 @@ const doRefresh=(ev:any)=>{
                         <IonRow className='px-7 py-4'>
                           <IonCol size="9">
                             <p className='text-gray-500 font-light text-sm'>Driver</p>
-                            <p className=' text-gray-600 font-normal'>{selectedUser?.driver.Name} ({selectedUser?.driver.PhoneNumber})</p>
+                            <p className=' text-gray-600 font-normal'>{selectedUser?.driver.name} ({selectedUser?.driver.phone_number})</p>
                           </IonCol>
                           <IonCol size="">
                             <IonButton fill='clear'>

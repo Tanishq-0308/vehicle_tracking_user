@@ -21,7 +21,7 @@
  			margin: auto 0;
  			width: 55px;
  			height: 3px;
- 			background: var(--ion-color-primary);
+ 			background: #35a5f0;
  			border-radius: 50px;
 }
 .welcome::after{

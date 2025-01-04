@@ -4,6 +4,7 @@ import L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
 import 'leaflet/dist/leaflet.css';
 import { useIonViewWillEnter, useIonViewDidLeave } from '@ionic/react';  // Correct hook imports
+import iconUrl from '../../../assets/locate.png';
 
 const MapView: React.FC = () => {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -47,8 +48,15 @@ const MapView: React.FC = () => {
         });
         googleStreets.addTo(mapInstance.current);
 
+        const customIcon = L.icon({
+          iconUrl: iconUrl, // Replace with the path to your image
+          iconSize: [36, 38], // Size of the icon
+          iconAnchor: [16, 32], // Point of the icon which will correspond to marker's location
+          popupAnchor: [0, -30] // Point from which the popup should open relative to the iconAnchor
+        });
+
         // Add marker for the user's current location
-        L.marker([location.lat, location.lng])
+        L.marker([location.lat, location.lng],{icon:customIcon})
           .addTo(mapInstance.current)
           .bindPopup('Your location');
       } else {

@@ -55,8 +55,8 @@ const AddTripInfor: React.FC = () => {
 
         const formattedDatetime = datetime.endsWith('Z') ? datetime : datetime + 'Z';
         const inputs = {
-            start_location: current,
-            destination: destination,
+            start_location: current.display_name,
+            destination: destination.display_name,
             task_name: tripTask,
             load_carrying: loadCarrying,
             date_time: formattedDatetime,
@@ -65,7 +65,11 @@ const AddTripInfor: React.FC = () => {
             helper_id: assignHelper,
             current_location: 'delhi',
             status: 'Pending',
-            admin_id:id
+            admin_id:id,
+            start_latitude:Number(current.lat),
+            start_longitude:Number(current.lon),
+            dest_latitude:Number(destination.lat),
+            dest_longitude:Number(destination.lon)
         }
         console.log(inputs, headers);
 
@@ -95,6 +99,10 @@ const AddTripInfor: React.FC = () => {
         }
     }
     useEffect(() => {
+        console.log("current location",current);
+        console.log("end location",destination);
+        
+        
         const getDrivers = async (id: any) => {
             try {
                 const response = await CapacitorHttp.request({
@@ -178,7 +186,7 @@ const AddTripInfor: React.FC = () => {
                             <IonInput
                                 placeholder='Current location'
                                 className='text-xl'
-                                value={current}
+                                value={current.display_name}
                             />
                             <IonIcon icon={locate} slot='end' className='mt-5' />
                         </IonItem>
@@ -188,7 +196,7 @@ const AddTripInfor: React.FC = () => {
                             <IonInput
                                 placeholder='Destination location'
                                 className='text-xl'
-                                value={destination}
+                                value={destination.display_name}
                             />
                         </IonItem>
                     </IonList>
