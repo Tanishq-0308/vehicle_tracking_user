@@ -1,4 +1,4 @@
-import { IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import truckImg from '../../../assets/truck1.png'
@@ -16,6 +16,7 @@ const Helpers: React.FC = () => {
     const [loading, setLoading] = useState(false)
     const id = localStorage.getItem('id')
     const bearer_token = localStorage.getItem('token');
+        const [search, setSearch] = useState('');
 
     const headers = {
         'Content-Type': 'application/json',
@@ -52,14 +53,26 @@ const Helpers: React.FC = () => {
         ev.detail.complete();
         setLoading(prev => !prev)
     }
+    const handleInput=(event:CustomEvent)=>{
+        setSearch(event.detail.value);
+    }
     return (
         <>
-                <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
-                    <IonRefresherContent />
-                </IonRefresher>
+            <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
+                <IonRefresherContent />
+            </IonRefresher>
             <IonSegmentContent id='helpers'>
+            <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Helper Search'></IonSearchbar>
                 {
-                    helpers.map((helper,index) => (
+                    helpers
+                    .filter((helper)=>{
+                        return search.toLowerCase() === ''
+                        ? helper
+                        : (
+                            (helper.name.toLowerCase().includes(search))
+                        )
+                    })
+                    .map((helper, index) => (
                         <IonGrid key={index}>
                             <IonRow>
                                 <IonCol>

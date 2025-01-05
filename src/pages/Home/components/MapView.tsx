@@ -56,7 +56,7 @@ const MapView: React.FC = () => {
         });
 
         // Add marker for the user's current location
-        L.marker([location.lat, location.lng],{icon:customIcon})
+        L.marker([26.4609135, 80.3217588],{icon:customIcon})
           .addTo(mapInstance.current)
           .bindPopup('Your location');
       } else {

@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonIcon, IonItem, IonMenu, IonMenuToggle, IonPage, IonRouterOutlet, IonSplitPane, IonTitle, IonToolbar } from '@ionic/react';
 import React, { useContext } from 'react';
-import driverPic from '../../../assets/driver_pic.png'
+import driverPic from '../../../assets/logo-light.png'
 import { Redirect, Route } from 'react-router';
 import Home from '../Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -12,7 +12,6 @@ import Contactus from '../../ContactUs/Contactus';
 import Trucks from '../../Trucks/Trucks';
 import Drivers from '../../Drivers/Drivers';
 import Profile from '../../Profile/Profile';
-import AdminContext from '../../contexts/AdminContext/AdminContext';
 
 const paths = [
     {
@@ -58,19 +57,18 @@ const Sidebar: React.FC = () => {
         localStorage.removeItem('token')
         localStorage.removeItem('id')
     }
-    type AdminContextType = /*unresolved*/ any
-    const {adminName,companyName}=useContext<AdminContextType | undefined>(AdminContext);
-
     return (
         <IonPage>
             <IonSplitPane contentId='main'>
                 <IonMenu contentId='main'>
                 <IonHeader className=''>
                         <IonToolbar >
-                            <div className='flex flex-col items-center justify-center my-8'>
-                                <img src={driverPic} alt="" className='h-[80px] w-[80px]' />
-                                <p className='text-xl font-bold'>{adminName}</p>
-                                <p>{companyName}</p>
+                            <div className='flex flex-col items-center justify-center bg-blue-500'>
+                                <div className='my-10 border p-2 rounded-3xl'>
+                                <img src={driverPic} alt="" className='h-[40px] w-[180px]' />
+                                </div>
+                                {/* <p className='text-xl font-bold'>{adminName}</p>
+                                <p>{companyName}</p> */}
                             </div>
                         </IonToolbar>
                     </IonHeader>

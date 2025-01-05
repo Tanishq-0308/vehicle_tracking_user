@@ -1,4 +1,4 @@
-import { IonButton, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonLabel, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonLabel, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
 import { add, map } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import truckImg from '../../assets/truck1.png'
@@ -18,6 +18,7 @@ const Drivers: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const id = localStorage.getItem('id')
   const bearer_token = localStorage.getItem('token');
+    const [search, setSearch] = useState('');
 
   const headers = {
     'Content-Type': 'application/json',
@@ -58,6 +59,10 @@ const Drivers: React.FC = () => {
   const handleSegmentChange = (event: CustomEvent) => {
     setSelectedSegment(event.detail.value);
   };
+
+  const handleInput=(event:CustomEvent)=>{
+    setSearch(event.detail.value)
+  }
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
@@ -101,11 +106,20 @@ const Drivers: React.FC = () => {
           {selectedSegment === 'drivers' && (
             <>
               <IonSegmentContent id='drivers'>
+            <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Driver Search'></IonSearchbar>
                 {
                   empty ? (
                     <div className=' text-center text-xl'>No truck added</div>
                   ) : (
-                    drivers.map((driver, index) => (
+                    drivers
+                    .filter((driver)=>{
+                      return search.toLowerCase() === ''
+                      ? driver
+                      : (
+                        (driver.Name.toLowerCase().includes(search))
+                      )
+                    })
+                    .map((driver, index) => (
                       <IonGrid key={index}>
                         <IonRow>
                           <IonCol>

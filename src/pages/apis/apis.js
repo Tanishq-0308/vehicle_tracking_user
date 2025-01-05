@@ -30,5 +30,5 @@ export const getHelper=(id)=>
 export const addTrip=()=>
     `${port}/api/v1/add-trip`
 
-export const getTrips=(id,limit)=>
-    `${port}/api/v1/trips?admin_id=${id}&page=1&limit=${limit}`
+export const getTrips=(id,page)=>
+    `${port}/api/v1/trips?admin_id=${id}&page=${page}&limit=4`

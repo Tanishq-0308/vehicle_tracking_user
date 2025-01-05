@@ -5,7 +5,7 @@ import { login } from '../apis/apis.js'
 import { useHistory } from 'react-router';
 import { CapacitorHttp } from '@capacitor/core';
 import { App } from '@capacitor/app';
-import logo from '../../assets/Group 46.png'
+import logo from '../../assets/logo.png'
 
 const Signin: React.FC = () => {
   const [email, setEmail] = useState<string>('tanishq@gmail.com');
@@ -97,14 +97,14 @@ const Signin: React.FC = () => {
         <div className="bg-img h-full overflow-auto">
           <div className="overlay"></div>
           <div className="w-full flex h-[280px] overflow-hidden items-center justify-center">
-            <h2 className="z-50 ">
-              <img src={logo} alt="" width="250"/>
-            </h2>
+            <div className='z-50 border bg-[#ffffffe0] p-3 rounded-full'>
+              <img src={logo} alt="" width="200"/>
+            </div>
           </div>
-          <div className="text-[#35a5f0] pt-5 relative z-50 text-center">
+          <div className="text-[#e3e6e7] pt-5 relative z-50 text-center">
             <h2 className="text-2xl font-normal m-0 mb-9 relative welcome">Welcome</h2>
             <h3 className='font-normal text-lg'>
-              Enter your phone number to <br /> sign in
+              Enter your phone number<br/>or Email to sign in
             </h3>
             <IonGrid >
               <IonRow className="ion-justify-content-center">

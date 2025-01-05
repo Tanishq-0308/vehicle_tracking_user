@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter, useIonViewWillEnter } from '@ionic/react';
+import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter, useIonViewWillEnter } from '@ionic/react';
 import './Home.css';
 import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locateOutline, locationOutline, map, phoneLandscape } from 'ionicons/icons';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -37,7 +37,7 @@ const Home: React.FC = () => {
   const id = localStorage.getItem('id')
   const [loading, setLoading] = useState(false)
   const history= useHistory();
-  const limit = 4;
+  const [page,setPage]= useState(1);
   const bearer_token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
@@ -52,6 +52,7 @@ const Home: React.FC = () => {
     setSelectedModalSegment(event.detail.value)
   }
 
+  // get trip details 
   useEffect(() => {
     const getAdminDetails = async () => {
       try {
@@ -76,7 +77,7 @@ const Home: React.FC = () => {
     const getTrip = async () => {
       try {
         const response = await CapacitorHttp.request({
-          url: getTrips(id, limit),
+          url: getTrips(id, page),
           method: 'GET',
           headers: headers
         })
@@ -88,8 +89,9 @@ const Home: React.FC = () => {
       }
     }
     getTrip();
-  }, [id,loading])
+  }, [id,loading,page])
 
+  // Date time formatting
   const formatDateTime = (dateTimeString: any) => {
     try {
       const date = new Date(dateTimeString);
@@ -100,6 +102,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // Refresh page 
   const doRefresh = (ev: any) => {
     ev.detail.complete();
     setLoading(prev => !prev)
@@ -210,7 +213,7 @@ const Home: React.FC = () => {
                             </div>
                             <div className='px-3 py-1'>
                               <IonRow>
-                                <IonCol size="6">
+                                <IonCol size="5">
                                   <p className='text-gray-700 font-light'>Task</p>
                                   <p className=' text-gray-600 font-normal'>{trip.task_name}</p>
                                 </IonCol>
@@ -242,6 +245,14 @@ const Home: React.FC = () => {
 
                   ))
                 }
+                <IonInfiniteScroll
+        onIonInfinite={(event:any) => {
+          setPage((prev)=>prev+1)
+          setTimeout(() => event.target.complete(), 500);
+        }}
+      >
+        <IonInfiniteScrollContent></IonInfiniteScrollContent>
+      </IonInfiniteScroll>
               </IonSegmentContent>
               <IonFab horizontal='end' vertical='bottom' slot='' className='ion-padding'>
                 <IonFabButton routerLink='/create-trip'>
