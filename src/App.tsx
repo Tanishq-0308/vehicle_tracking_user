@@ -43,6 +43,10 @@ import AddTruck from './pages/Trucks/components/AddTruck';
 import addDriver from './pages/Drivers/Components/Add-Driver';
 import AddHelper from './pages/Drivers/Components/AddHelper';
 import AdminContextProvider from './pages/contexts/AdminContext/AdminContextProvider';
+import NewPage from './pages/NewPage';
+import TruckInfo from './pages/Trucks/components/TruckInfo';
+import DriverInfo from './pages/Drivers/Components/DriverInfo';
+import HelperInfo from './pages/Drivers/Components/HelperInfo';
 
 setupIonicReact();
 
@@ -61,6 +65,10 @@ const App: React.FC = () => (
         <Route component={AddTruck} path="/add-truck"/>
         <Route component={addDriver} path="/add-driver"/>
         <Route component={AddHelper} path="/add-helper"/>
+        <Route component={NewPage} path="/new-page"/>
+        <Route component={TruckInfo} path="/truck-info"/>
+        <Route component={DriverInfo} path="/driver-info"/>
+        <Route component={HelperInfo} path="/helper-info"/>
         <Route exact path="/">
           <Redirect to="/signin" />
         </Route>

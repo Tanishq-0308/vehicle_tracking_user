@@ -1,10 +1,11 @@
-import { IonButton, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonLabel, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonLabel, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import { add, map } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import truckImg from '../../assets/truck1.png'
 import { CapacitorHttp } from '@capacitor/core';
 import { getDriver } from '../apis/apis';
 import Helpers from './Components/Helpers';
+import AdminContext from '../contexts/AdminContext/AdminContext';
 
 interface Driver {
   Name: string;
@@ -15,6 +16,9 @@ const Drivers: React.FC = () => {
   const [selectedSegment, setSelectedSegment] = useState('drivers');
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [empty, setEmpty] = useState(false)
+  type AdminContextType = /*unresolved*/ any
+  const {setDriverDetail} = useContext<AdminContextType | undefined>(AdminContext);
+  const router= useIonRouter();
   const [loading, setLoading] = useState(false)
   const id = localStorage.getItem('id')
   const bearer_token = localStorage.getItem('token');
@@ -120,7 +124,12 @@ const Drivers: React.FC = () => {
                       )
                     })
                     .map((driver, index) => (
-                      <IonGrid key={index}>
+                      <IonGrid key={index} 
+                      onClick={(e)=>{
+                        setDriverDetail(driver)
+                        router.push('/driver-info')
+                      }}
+                      >
                         <IonRow>
                           <IonCol>
                             <div className='bg-white rounded-lg m-1 mx-2'>

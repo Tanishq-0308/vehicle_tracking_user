@@ -1,15 +1,21 @@
-import { IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, useIonViewWillEnter, useIonViewWillLeave } from '@ionic/react';
+import { IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonMenuButton, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegment, IonSegmentButton, IonTitle, IonToolbar, useIonRouter, useIonViewWillEnter, useIonViewWillLeave } from '@ionic/react';
 import { add, map } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import truckImg from '../../assets/truck1.png'
 import { CapacitorHttp } from '@capacitor/core';
 import { getTruck } from '../apis/apis';
+import AdminContext from '../contexts/AdminContext/AdminContext';
 
 interface Truck {
   name: string;
-  truck_brand: string;
-  model_no: string;
-  truck_number: string
+  truck:{
+    truck_brand: string;
+    model_no: string;
+    truck_number: string
+  }
+  gps_data:{
+    status:string
+  }
 }
 
 const Trucks: React.FC = () => {
@@ -20,6 +26,8 @@ const Trucks: React.FC = () => {
   const bearer_token = localStorage.getItem('token');
   const [search, setSearch] = useState('');
   const [selectSegment, setSelectSegment] = useState('All')
+  type AdminContextType = /*unresolved*/ any
+  const {setTruckDetails}= useContext<AdminContextType | undefined>(AdminContext);
 
   const headers = {
     'Content-Type': 'application/json',
@@ -67,6 +75,7 @@ const Trucks: React.FC = () => {
   const handleSegmentChange= (event: CustomEvent)=>{
     setSelectSegment(event.detail.value)
   }
+  const router= useIonRouter();
   return (
     <IonPage>
       <IonHeader className=''>
@@ -91,16 +100,16 @@ const Trucks: React.FC = () => {
             <IonSegmentButton value='All'>
               All
             </IonSegmentButton>
-            <IonSegmentButton value='Volvo'>
-              In Transit
+            <IonSegmentButton value='Moving'>
+              Moving
             </IonSegmentButton>
-            <IonSegmentButton value='Suzuki'>
+            <IonSegmentButton value='Stopped'>
               Stopped
             </IonSegmentButton>
-            <IonSegmentButton value='Mahindra'>
+            <IonSegmentButton value='Offline'>
               Offline
             </IonSegmentButton>
-            <IonSegmentButton value='fastandfurious'>
+            <IonSegmentButton value='Idle'>
               Idle
             </IonSegmentButton>
           </IonSegment>
@@ -119,25 +128,29 @@ const Trucks: React.FC = () => {
                 return search.toLowerCase() === ''
                   ? truck
                   : (
-                    (truck.truck_number.toLowerCase()).includes(search)
+                    (truck.truck.truck_number.toLowerCase()).includes(search)
                   )
               })
               .filter((truck)=>{
                 switch (selectSegment){
-                  case 'Volvo':
-                    return truck.truck_brand=== 'Volvo';
-                  case 'Suzuki':
-                    return truck.truck_brand=== 'Suzuki';
-                  case 'Mahindra':
-                    return truck.truck_brand=== 'Mahindra';
-                  case 'fastandfurious':
-                    return truck.truck_brand=== 'fastandfurious';
+                  case 'Moving':
+                    return truck.gps_data.status=== 'Moving';
+                  case 'Stopped':
+                    return truck.gps_data.status=== 'Stopped';
+                  case 'Offline':
+                    return truck.gps_data.status=== 'Offline';
+                  case 'Idle':
+                    return truck.gps_data.status=== 'Idle';
                   case 'All':
                   return true;
                 }
               })
               .map((truck, index) => (
-                <IonGrid key={index}>
+                <IonGrid key={index} onClick={(e)=>{
+                  setTruckDetails(truck)
+                  router.push('/truck-info')
+                }
+                 }>
                   <IonRow>
                     <IonCol>
                       <div className='bg-white rounded-lg m-1 mx-2'>
@@ -151,11 +164,11 @@ const Trucks: React.FC = () => {
                           </div>
                           <div className='flex w-full justify-between p-1 mx-2'>
                             <h2 className=" text-lg font-bold leading-4 m-0">
-                              <p className='text-black text-[19px] pb-1 tracking-tighter'>{truck.truck_number}</p>
-                              <p className="text-gray-500 font-normal tracking-tighter text-[13px]">{truck.truck_brand} {truck.model_no}</p>
+                              <p className='text-black text-[19px] pb-1 tracking-tighter'>{truck.truck.truck_number}</p>
+                              <p className="text-gray-500 font-normal tracking-tighter text-[13px]">{truck.truck.truck_brand} {truck.truck.model_no}</p>
                             </h2>
                             <span className="text-green-600  font-bold m-0">
-                              In Transit
+                              {truck.gps_data.status}
                             </span>
                           </div>
                         </div>

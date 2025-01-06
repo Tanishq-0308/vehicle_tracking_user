@@ -1,9 +1,10 @@
-import { IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar } from '@ionic/react';
+import { IonCol, IonContent, IonFab, IonFabButton, IonGrid, IonHeader, IonIcon, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSearchbar, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter } from '@ionic/react';
 import { add } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import truckImg from '../../../assets/truck1.png'
 import { CapacitorHttp } from '@capacitor/core';
 import { getHelper } from '../../apis/apis';
+import AdminContext from '../../contexts/AdminContext/AdminContext';
 
 interface Helper {
     name: string;
@@ -16,8 +17,10 @@ const Helpers: React.FC = () => {
     const [loading, setLoading] = useState(false)
     const id = localStorage.getItem('id')
     const bearer_token = localStorage.getItem('token');
-        const [search, setSearch] = useState('');
-
+    const [search, setSearch] = useState('');
+    type AdminContextType = /*unresolved*/ any
+    const { setHelperDetail } = useContext<AdminContextType | undefined>(AdminContext);
+    const router= useIonRouter();
     const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${bearer_token}`
@@ -53,7 +56,7 @@ const Helpers: React.FC = () => {
         ev.detail.complete();
         setLoading(prev => !prev)
     }
-    const handleInput=(event:CustomEvent)=>{
+    const handleInput = (event: CustomEvent) => {
         setSearch(event.detail.value);
     }
     return (
@@ -62,47 +65,51 @@ const Helpers: React.FC = () => {
                 <IonRefresherContent />
             </IonRefresher>
             <IonSegmentContent id='helpers'>
-            <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Helper Search'></IonSearchbar>
+                <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Helper Search'></IonSearchbar>
                 {
                     helpers
-                    .filter((helper)=>{
-                        return search.toLowerCase() === ''
-                        ? helper
-                        : (
-                            (helper.name.toLowerCase().includes(search))
-                        )
-                    })
-                    .map((helper, index) => (
-                        <IonGrid key={index}>
-                            <IonRow>
-                                <IonCol>
-                                    <div className='bg-white rounded-lg m-1 mx-2'>
-                                        <div className='flex items-center p-3 border-b rounded-xl  '>
-                                            <div className='h-[52px] w-16 flex'>
-                                                <img
-                                                    src={truckImg}
-                                                    alt="truckimg"
-                                                    className="rounded-full"
-                                                />
-                                            </div>
-                                            <div className='flex w-full justify-between p-1 mx-2'>
-                                                <div className=" text-lg font-bold leading-4 mt-1">
-                                                    <p className='text-black text-[17px] pb-1 '>{helper.name}</p>
-                                                    <p className="text-gray-500 font-normal  text-[13px]">{helper.phone_number}</p>
+                        .filter((helper) => {
+                            return search.toLowerCase() === ''
+                                ? helper
+                                : (
+                                    (helper.name.toLowerCase().includes(search))
+                                )
+                        })
+                        .map((helper, index) => (
+                            <IonGrid key={index}
+                                onClick={(e) => {
+                                    setHelperDetail(helper)
+                                    router.push('/helper-info')
+                                }}>
+                                <IonRow>
+                                    <IonCol>
+                                        <div className='bg-white rounded-lg m-1 mx-2'>
+                                            <div className='flex items-center p-3 border-b rounded-xl  '>
+                                                <div className='h-[52px] w-16 flex'>
+                                                    <img
+                                                        src={truckImg}
+                                                        alt="truckimg"
+                                                        className="rounded-full"
+                                                    />
                                                 </div>
-                                                <div className=''>
-                                                    <p className="text-green-600 text-end font-bold m-0">In Transit</p>
-                                                    <p className="text-gray-500 font-normal  text-[13px]">
-                                                        In Truck num <span className='font-bold text-black'>GTY 1024</span>
-                                                    </p>
+                                                <div className='flex w-full justify-between p-1 mx-2'>
+                                                    <div className=" text-lg font-bold leading-4 mt-1">
+                                                        <p className='text-black text-[17px] pb-1 '>{helper.name}</p>
+                                                        <p className="text-gray-500 font-normal  text-[13px]">{helper.phone_number}</p>
+                                                    </div>
+                                                    <div className=''>
+                                                        <p className="text-green-600 text-end font-bold m-0">In Transit</p>
+                                                        <p className="text-gray-500 font-normal  text-[13px]">
+                                                            In Truck num <span className='font-bold text-black'>GTY 1024</span>
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </IonCol>
-                            </IonRow>
-                        </IonGrid>
-                    ))
+                                    </IonCol>
+                                </IonRow>
+                            </IonGrid>
+                        ))
                 }
             </IonSegmentContent>
             <IonFab horizontal='end' vertical='bottom' slot='' className='ion-padding'>

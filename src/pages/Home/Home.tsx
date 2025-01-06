@@ -1,16 +1,15 @@
 import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter, useIonViewWillEnter } from '@ionic/react';
 import './Home.css';
-import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locateOutline, locationOutline, map, phoneLandscape } from 'ionicons/icons';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locationOutline, map } from 'ionicons/icons';
+import {useEffect, useRef, useState } from 'react';
 import MapView from './components/MapView';
 import truckImg from '../../assets/truck1.png'
-import AdminContext from '../contexts/AdminContext/AdminContext';
 import { CapacitorHttp } from '@capacitor/core';
-import { getProfile, getTrips } from '../apis/apis';
+import { getTrips } from '../apis/apis';
 import { format } from 'date-fns';
 import { App } from '@capacitor/app';
-import { Preferences } from '@capacitor/preferences';
 import { useHistory } from 'react-router';
+import MapRoute from './components/MapRoute';
 
 interface Trip {
   current_location: string;
@@ -23,21 +22,23 @@ interface Trip {
     truck_brand: string;
     truck_number: string
   }
+  
 }
 
 const Home: React.FC = () => {
+  const isLoadingRef = useRef(false);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedSegment, setSelectedSegment] = useState('trip_history');
   const [selectedModalSegment, setSelectedModalSegment] = useState('about_trip');
   const modal = useRef<HTMLIonModalElement>(null);
   const input = useRef<HTMLIonInputElement>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  type AdminContextType = /*unresolved*/ any
-  const { setAdminName, setCompanyName } = useContext<AdminContextType | undefined>(AdminContext);
   const id = localStorage.getItem('id')
   const [loading, setLoading] = useState(false)
-  const history= useHistory();
-  const [page,setPage]= useState(1);
+  const [get, setGet] = useState('');
+  const history = useHistory();
+  const [page, setPage] = useState(1);
+  const [selectSecondSegment, setSelectSecondSegment] = useState('All')
   const bearer_token = localStorage.getItem('token');
   const headers = {
     'Content-Type': 'application/json',
@@ -54,51 +55,52 @@ const Home: React.FC = () => {
 
   // get trip details 
   useEffect(() => {
-    const getAdminDetails = async () => {
-      try {
-        const response = await CapacitorHttp.request({
-          url: getProfile(id),
-          method: 'GET',
-          headers: headers,
-        })
-        setAdminName(response.data.profile.Name)
-        setCompanyName(response.data.profile.CompanyName)
-        console.log(response.data.profile.Name);
-        console.log(response.data.profile.CompanyName);
-        // console.log(response);
 
-
-      } catch (err) {
-        console.error("fetching admin data ", err);
-      }
-    }
-    getAdminDetails();
-
-    const getTrip = async () => {
+    const getTrip = async (page: any) => {
+      if (isLoadingRef.current) return; // Prevent multiple calls
+      isLoadingRef.current = true;
       try {
         const response = await CapacitorHttp.request({
           url: getTrips(id, page),
           method: 'GET',
           headers: headers
         })
-        console.log(response.data.trips[0]);
-        setTrips(response.data.trips);
+        console.log(response.data.trips);
+        console.log(response.data.trips.length);
+
+        setGet(response.data.trips.length);
+
+        const data = response.data.trips;
+        setTrips((prevItems) => [...prevItems, ...data]);
 
       } catch (err) {
         console.error("fetching trip data", err);
+      } finally {
+        isLoadingRef.current = false;
       }
     }
-    getTrip();
-  }, [id,loading,page])
+    getTrip(page);
+  }, [id, page])
 
   // Date time formatting
   const formatDateTime = (dateTimeString: any) => {
+    if (!dateTimeString) {
+      // console.error("Invalid date time string: ", dateTimeString);
+      return null; // or any default value you'd like to return
+    }
+
     try {
       const date = new Date(dateTimeString);
+
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        throw new RangeError('Invalid date');
+      }
+
       return format(date, 'MMMM d, yyyy h:mm a'); // Customize the format as needed
     } catch (err) {
-      console.error("date time error", err);
-
+      console.error("Date time error:", err);
+      return null; // or any default value you'd like to return
     }
   };
 
@@ -106,43 +108,56 @@ const Home: React.FC = () => {
   const doRefresh = (ev: any) => {
     ev.detail.complete();
     setLoading(prev => !prev)
+    
   }
 
   const ionRouter = useIonRouter();
-  document.addEventListener('ionBackButton',async (event: any) => {
-    const pass= localStorage.getItem('id')
+  document.addEventListener('ionBackButton', async (event: any) => {
+    const pass = localStorage.getItem('id')
 
-    event.detail.register(-1, async() => {
+    event.detail.register(-1, async () => {
       if (pass) {
-        console.log("pass valuedd",pass);
-        
+        console.log("pass valuedd", pass);
+
         const ans = window.confirm("Are you sure to exit ?")
-        if(ans){
+        if (ans) {
           // await Preferences.remove({key:'signin'});
           App.exitApp();
 
         }
-        else{
+        else {
           history.push('/app');
         }
       }
     });
   });
 
-  useIonViewWillEnter(()=>{
+  useIonViewWillEnter(() => {
     console.log("started");
-    
-    const backbutton=()=>{
-      const pass= localStorage.getItem('id');
-      if(pass){
-        console.log("pass valued",pass);
+
+    const backbutton = () => {
+      const pass = localStorage.getItem('id');
+      if (pass) {
+        console.log("pass valued", pass);
         console.log(window.localStorage);
-        
+
       }
     }
     backbutton();
   })
 
+  const handleIonInfinite = (e: any) => {
+    if (get == '0') {
+      (e.target as HTMLIonInfiniteScrollElement).disabled = true;
+    }
+    setTimeout(() => {
+      setPage((prevPage) => prevPage + 1);
+      e.target.complete()
+    }, 2000);
+  }
+  const handleSecondSegmentChange = (event: CustomEvent) => {
+    setSelectSecondSegment(event.detail.value)
+  }
   return (
     <IonPage>
       <IonHeader className='ion-no-border'>
@@ -162,17 +177,23 @@ const Home: React.FC = () => {
           </IonButton>
         </IonToolbar>
         <div className='tab2'>
-          <IonSegment scrollable={true} color={'warning'} value='default'>
-            <IonSegmentButton value='default'>
+          <IonSegment scrollable={true} color={'warning'} value={selectSecondSegment} onIonChange={handleSecondSegmentChange}>
+          <IonSegmentButton value='All'>
+              All
+            </IonSegmentButton>
+            <IonSegmentButton value='Pending'>
+              Pending
+            </IonSegmentButton>
+            <IonSegmentButton value='Moving'>
               In Transit
             </IonSegmentButton>
-            <IonSegmentButton>
+            <IonSegmentButton value='Stopped'>
               Stopped
             </IonSegmentButton>
-            <IonSegmentButton>
+            <IonSegmentButton value='Idle'>
               Idle
             </IonSegmentButton>
-            <IonSegmentButton>
+            <IonSegmentButton value='In Garage'>
               In Garage
             </IonSegmentButton>
           </IonSegment>
@@ -186,73 +207,92 @@ const Home: React.FC = () => {
           {selectedSegment === 'trip_history' && (
             <>
               <IonSegmentContent id='trip_history'>
-                {
-                  trips.slice().reverse().map((trip, index) => (
-                    <IonGrid key={index} onClick={() => setSelectedUser(trip)}>
-                      <IonRow >
-                        <IonCol>
-                          <div className='bg-white rounded-lg m-2'>
-                            <div className='flex items-center p-2 border-b rounded-t-xl bg-gray-200 '>
-                              <div className='h-8 w-9 flex'>
-                                <img
-                                  src={truckImg}
-                                  alt="truckimg"
-                                  className="rounded-full" />
-                              </div>
-                              <div className='flex w-full justify-between p-1 mx-2'>
-                                <h2 className="flex items-center text-lg font-bold leading-4 m-0">
-                                  {trip.truck.truck_number}
-                                  <sub className="text-gray-600 font-normal text-[12px] mx-1 my-0">
-                                    {trip.truck.truck_brand} {trip.truck.model_no}
-                                  </sub>
-                                </h2>
-                                <span className="text-green-700  font-bold m-0 uppercase">
-                                  {trip.status}
-                                </span>
-                              </div>
-                            </div>
-                            <div className='px-3 py-1'>
-                              <IonRow>
-                                <IonCol size="5">
-                                  <p className='text-gray-700 font-light'>Task</p>
-                                  <p className=' text-gray-600 font-normal'>{trip.task_name}</p>
-                                </IonCol>
-                                <IonCol size="">
-                                  <p className='text-gray-700 font-light'>Departed</p>
-                                  <p className=' text-gray-600 font-normal'>{formatDateTime(trip.date_time)}</p>
-                                </IonCol>
-                              </IonRow>
-                            </div>
-                            <div className='px-3 py-1'>
-                              <IonRow>
-                                <IonCol size='9'>
-                                  <p className='text-gray-700 font-light'>Current Location</p>
-                                  <p className=' text-gray-600 font-normal'>{trip.current_location}</p>
-                                </IonCol>
-                                <IonCol className='flex items-center justify-center '>
-                                  <div>
-                                    <IonButton fill='clear'>
-                                      <IonIcon icon={map} color='primary' className='border-2 p-2 rounded-full'></IonIcon>
-                                    </IonButton>
+                <IonContent className='segmentContent'>
+                  <IonList className='bg-[#343B45]'>
+                    {
+                      trips
+                      .filter((trip)=>{
+                        switch (selectSecondSegment){
+                          case 'Pending':
+                            return trip.status=== 'Pending';
+                          case 'Moving':
+                            return trip.status=== 'Moving';
+                          case 'Stopped':
+                            return trip.status=== 'Stopped';
+                          case 'Idle':
+                            return trip.status=== 'Idle';
+                          case 'In Garage':
+                            return trip.status=== 'In Garage';
+                          case 'All':
+                          return true;
+                        }
+                      })
+                      .map((trip, index) => (
+                        <IonGrid key={index} onClick={() => setSelectedUser(trip)}>
+                          <IonRow >
+                            <IonCol>
+                              <div className='bg-white rounded-lg m-2'>
+                                <div className='flex items-center p-2 border-b rounded-t-xl bg-gray-200 '>
+                                  <div className='h-8 w-9 flex'>
+                                    <img
+                                      src={truckImg}
+                                      alt="truckimg"
+                                      className="rounded-full" />
                                   </div>
-                                </IonCol>
-                              </IonRow>
-                            </div>
-                          </div>
-                        </IonCol>
-                      </IonRow>
-                    </IonGrid>
-
-                  ))
-                }
-                <IonInfiniteScroll
-        onIonInfinite={(event:any) => {
-          setPage((prev)=>prev+1)
-          setTimeout(() => event.target.complete(), 500);
-        }}
-      >
-        <IonInfiniteScrollContent></IonInfiniteScrollContent>
-      </IonInfiniteScroll>
+                                  <div className='flex w-full justify-between p-1 mx-2'>
+                                    <h2 className="flex items-center text-lg font-bold leading-4 m-0">
+                                      {trip.truck.truck_number}
+                                      <sub className="text-gray-600 font-normal text-[12px] mx-1 my-0">
+                                        {trip.truck.truck_brand} {trip.truck.model_no}
+                                      </sub>
+                                    </h2>
+                                    <span className="text-green-700  font-bold m-0 uppercase">
+                                      {trip.status}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className='px-3 py-1'>
+                                  <IonRow>
+                                    <IonCol size="6">
+                                      <p className='text-gray-700 font-light'>Task</p>
+                                      <p className=' text-gray-600 text-[15px] font-normal'>{trip.task_name}</p>
+                                    </IonCol>
+                                    <IonCol size="">
+                                      <p className='text-gray-700 font-light'>Departed</p>
+                                      <p className=' text-gray-600 text-[15px] font-normal'>{formatDateTime(trip.date_time)}</p>
+                                    </IonCol>
+                                  </IonRow>
+                                </div>
+                                <div className='px-3 py-1'>
+                                  <IonRow>
+                                    <IonCol size='9'>
+                                      <p className='text-gray-700 font-light'>Current Location</p>
+                                      <p className=' text-gray-600 text-[15px] font-normal'>{trip.current_location}</p>
+                                    </IonCol>
+                                    <IonCol className='flex items-center justify-center '>
+                                      <div>
+                                        <IonButton fill='clear'>
+                                          <IonIcon icon={map} color='primary' className='border-2 p-2 rounded-full'></IonIcon>
+                                        </IonButton>
+                                      </div>
+                                    </IonCol>
+                                  </IonRow>
+                                </div>
+                              </div>
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                      ))
+                    }
+                  </IonList>
+                  <IonInfiniteScroll threshold='50px'
+                    onIonInfinite={(event) => {
+                      handleIonInfinite(event)
+                    }}
+                  >
+                    <IonInfiniteScrollContent loadingText="Loading items" loadingSpinner="bubbles" />
+                  </IonInfiniteScroll>
+                </IonContent>
               </IonSegmentContent>
               <IonFab horizontal='end' vertical='bottom' slot='' className='ion-padding'>
                 <IonFabButton routerLink='/create-trip'>
@@ -280,7 +320,12 @@ const Home: React.FC = () => {
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding" >
-            <MapView />
+            <MapRoute 
+            start_latitude={selectedUser?.start_latitude}
+            start_longitude={selectedUser?.start_longitude}
+            dest_lat={selectedUser?.dest_latitude}
+            dest_long={selectedUser?.dest_longitude}
+            />
           </IonContent>
           <IonFooter className={`h-[45px] absolute transition-all ease-in-out duration-700 bottom-0 w-full`} id='upcoming-task-modal'>
             <div id='openModal' className="ion-text-center pt-2 pb-4 px-0 bg-[#222428] text-gray-400 overflow-hidden rounded-t-xl w-[calc(100%-25px)] h-[75px] m-auto">

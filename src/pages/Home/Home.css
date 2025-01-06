@@ -116,3 +116,6 @@
     /* --opacity: 0.5; */
     height: 300px;
 }
+.segmentContent{
+    --background:#343B45;
+}

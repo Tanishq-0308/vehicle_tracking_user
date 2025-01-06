@@ -6,10 +6,11 @@ interface AdminContextProviderProps {
 }
 
 const AdminContextProvider: React.FC<AdminContextProviderProps> = ({ children }) => {
-  const [adminName, setAdminName] = useState<string>('');
-  const [companyName, setCompanyName] = useState<string>('');
+  const [truckDetail, setTruckDetails] = useState<string>('');
+  const [driverDetail, setDriverDetail] = useState<string>('');
+  const [helperDetail, setHelperDetail] = useState<string>('');
   return (
-    <AdminContext.Provider value={{ adminName, companyName, setAdminName, setCompanyName }}>
+    <AdminContext.Provider value={{ truckDetail, driverDetail, helperDetail, setTruckDetails, setDriverDetail, setHelperDetail }}>
       {children}
     </AdminContext.Provider>
   )

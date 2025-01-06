@@ -31,4 +31,4 @@ export const addTrip=()=>
     `${port}/api/v1/add-trip`
 
 export const getTrips=(id,page)=>
-    `${port}/api/v1/trips?admin_id=${id}&page=${page}&limit=4`
+    `${port}/api/v1/trips?admin_id=${id}&page=${page}&limit=5`

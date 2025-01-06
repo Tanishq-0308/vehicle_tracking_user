@@ -12,10 +12,15 @@ interface Driver {
 }
 
 interface Truck {
-    ID: string,
+  truck:{
     truck_brand: string;
     model_no: string;
     truck_number: string
+    id:string;
+  }
+  gps_data:{
+    status:string
+  }
 }
 
 interface Helper {
@@ -250,7 +255,7 @@ const AddTripInfor: React.FC = () => {
                             >
                                 {
                                     trucks.map((truck, index) => (
-                                        <IonSelectOption value={truck.ID} key={index}>{truck.truck_number}</IonSelectOption>
+                                        <IonSelectOption value={truck.truck.id} key={index}>{truck.truck.truck_number}</IonSelectOption>
                                     ))
                                 }
                             </IonSelect>
