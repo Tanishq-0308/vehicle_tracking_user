@@ -32,3 +32,6 @@ export const addTrip=()=>
 
 export const getTrips=(id,page)=>
     `${port}/api/v1/trips?admin_id=${id}&page=${page}&limit=5`
+
+export const gpsData=(truckId,id)=>
+    `${port}/api/v1/gps-data/latest?truck_id=${truckId}&admin_id=${id}`

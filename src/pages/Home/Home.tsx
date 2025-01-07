@@ -105,11 +105,11 @@ const Home: React.FC = () => {
   };
 
   // Refresh page 
-  const doRefresh = (ev: any) => {
-    ev.detail.complete();
-    setLoading(prev => !prev)
+  // const doRefresh = (ev: any) => {
+  //   ev.detail.complete();
+  //   setLoading(prev => !prev)
     
-  }
+  // }
 
   const ionRouter = useIonRouter();
   document.addEventListener('ionBackButton', async (event: any) => {
@@ -140,7 +140,6 @@ const Home: React.FC = () => {
       if (pass) {
         console.log("pass valued", pass);
         console.log(window.localStorage);
-
       }
     }
     backbutton();
@@ -200,9 +199,9 @@ const Home: React.FC = () => {
         </div>
       </IonHeader>
       <IonContent className='content'>
-        <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
+        {/* <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
           <IonRefresherContent />
-        </IonRefresher>
+        </IonRefresher> */}
         <IonSegmentView>
           {selectedSegment === 'trip_history' && (
             <>

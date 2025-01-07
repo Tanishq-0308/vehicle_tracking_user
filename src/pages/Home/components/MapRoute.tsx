@@ -5,7 +5,11 @@ import { Geolocation } from '@capacitor/geolocation';
 import 'leaflet/dist/leaflet.css';
 import { useIonViewWillEnter, useIonViewDidLeave } from '@ionic/react';  // Correct hook imports
 import iconUrl from '../../../assets/locate.png';
-import icon2Url from '../../../assets/pin.png'
+import icon2Url from '../../../assets/startlocate.png'
+import icon3Url from '../../../assets/box-truck.png'
+import "leaflet-routing-machine";
+import { CapacitorHttp } from '@capacitor/core';
+import { gpsData } from '../../apis/apis';
 
 interface MapRouteProps {
     start_latitude: number;
@@ -16,49 +20,87 @@ interface MapRouteProps {
 
 const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_lat,dest_long}) => {
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
     const mapRef = useRef<HTMLDivElement | null>(null);
     const mapInstance = useRef<L.Map | null>(null);
-  
-    useEffect(() => {
-      const getCurrentLocation = async () => {
+     const markerRef = useRef<L.Marker | null>(null);
+    const id = localStorage.getItem('id')
+  const bearer_token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${bearer_token}`
+  }
+  const truckId=16;
+    
+  useIonViewWillEnter(() => {
+    console.log('Map view will enter');
+    if (mapInstance.current) {
+      // You can initialize or refresh map here if needed
+      mapInstance.current.setView([20.5937,78.9629], 5);
+    }
+    console.log("map enter valie", markerPosition);
+  });
+     useEffect(()=>{
+            const getGpsData=async()=>{
+              try{
+                const response= await CapacitorHttp.request({
+                  url:gpsData(truckId,id),
+                  method:'GET',
+                  headers:headers
+                })
+                console.log("latitude: ",response.data.latitude + "longitude", response.data.longitude);
+                setMarkerPosition({
+                  lat: response.data.latitude,
+                  lng: response.data.longitude,
+                });
+              }catch(err){
+                console.error(err);
+              }
+            }
+            const inter= setInterval(() => {
+              getGpsData();
+              
+            }, 1000);
+            console.log('enter');
+            
+            
+            
+    
+            return(()=>{
+              console.log('exit');
+              
+              clearInterval(inter);
+            })
+          },[])
+    
+    useEffect(()=>{
+      const setLoc=async()=>{
         try {
-          const position = await Geolocation.getCurrentPosition();
-        //   setLocation({
-        //     lat: position.coords.latitude,
-        //     lng: position.coords.longitude,
-        //   });
           setLocation({
             lat:start_latitude,
             lng:start_longitude
           })
+          console.log("markerpostions",markerPosition);
           
           
         } catch (error) {
           console.error('Error getting location', error);
           alert('Unable to retrieve location. Please enable location services.');
         }
-      };
-      console.log(start_latitude);
-      console.log(start_longitude);
-      console.log(dest_lat);
-      console.log(dest_long);
-      
-      
-      
-      
-  
-      getCurrentLocation();
-    }, []);
+      }
+      setLoc();
+    },[])
   
     useEffect(() => {
-      if (location && mapRef.current) {
-        console.log(location);
+      if (location && mapRef.current && markerPosition) {
+        console.log(markerPosition);
+        
         // Initialize map only when location is available
         if (!mapInstance.current) {
           mapInstance.current = L.map(mapRef.current, {
-            center: [location.lat, location.lng],
-            zoom: 16,
-            zoomControl: false,
+            center: [20.5937,78.9629],
+            zoom: 5,
+            zoomControl: true,
           });
   
           // Add Google Streets Tile Layer
@@ -80,17 +122,52 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
             iconAnchor: [16, 32], // Point of the icon which will correspond to marker's location
             popupAnchor: [0, -30] // Point from which the popup should open relative to the iconAnchor
           });
+          
   
           // Add marker for the user's current location
-          L.marker([start_latitude,start_longitude],{icon:customIcon})
+          L.marker([start_latitude,start_longitude],{icon:customIcon2})
             .addTo(mapInstance.current)
-            .bindPopup('Your location');
-            L.marker([dest_lat,dest_long],{icon:customIcon2})
+            .bindPopup('Start').openPopup();
+            L.marker([dest_lat,dest_long],{icon:customIcon})
             .addTo(mapInstance.current)
-            .bindPopup('Your location');
+            .bindPopup('Destination').openPopup();
+            
+            
+            const routingControl = L.Routing.control({
+              waypoints: [
+                L.latLng(start_latitude, start_longitude),
+                L.latLng(dest_lat, dest_long),
+              ],
+              routeWhileDragging: false,
+              lineOptions: {
+                styles: [{ color: "#6FA1EC", weight: 4 }],
+              },
+              createMarker:function(){ return null;},
+              draggbleWaypoints:false,
+              itineraryOptions:{
+                summaryTemplate:''
+              },
+              instructions:false,
+              routeSummaryTemplate: '',
+            }).addTo(mapInstance.current);
+            routingControl.getContainer().style.display = 'none';
+            // mapInstance.current.removeControl(routingControl);
         } else {
           // Reposition the map if the location changes
-          mapInstance.current.setView([location.lat, location.lng], 16);
+          mapInstance.current.setView([markerPosition.lat,markerPosition.lng]);
+
+          if (markerRef.current) {
+            mapInstance.current.removeLayer(markerRef.current);
+        }
+          const customIcon3 = L.icon({
+            iconUrl: icon3Url, // Replace with the path to your image
+            iconSize: [36, 38], // Size of the icon
+            iconAnchor: [16, 32], // Point of the icon which will correspond to marker's location
+            popupAnchor: [0, -30] // Point from which the popup should open relative to the iconAnchor
+          });
+          markerRef.current=L.marker([markerPosition.lat,markerPosition.lng],{icon:customIcon3})
+                            .addTo(mapInstance.current)
+                            .bindPopup("Your location").openPopup();
         }
       }
   
@@ -98,22 +175,10 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
         mapInstance.current.invalidateSize(); // Forces Leaflet to recalculate map size
       }
   
-      // Cleanup map instance when component unmounts or before re-initializing
-      return () => {
-        if (mapInstance.current) {
-          mapInstance.current.remove();
-        }
-      };
-    }, [location]);
+    }, [mapRef,markerPosition]);
   
     // Handling view lifecycle with Ionic hooks
-    useIonViewWillEnter(() => {
-      console.log('Map view will enter');
-      if (mapInstance.current && location) {
-        // You can initialize or refresh map here if needed
-        mapInstance.current.setView([location.lat, location.lng], 16);
-      }
-    });
+   
   
     useIonViewDidLeave(() => {
       console.log('Map view did leave');
