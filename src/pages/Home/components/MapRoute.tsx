@@ -156,9 +156,9 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
           // Reposition the map if the location changes
           mapInstance.current.setView([markerPosition.lat,markerPosition.lng]);
 
-          if (markerRef.current) {
-            mapInstance.current.removeLayer(markerRef.current);
-        }
+              if (markerRef.current) {
+                mapInstance.current.removeLayer(markerRef.current);
+            } 
           const customIcon3 = L.icon({
             iconUrl: icon3Url, // Replace with the path to your image
             iconSize: [36, 38], // Size of the icon

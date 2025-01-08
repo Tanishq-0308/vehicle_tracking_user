@@ -12,6 +12,7 @@ import Contactus from '../../ContactUs/Contactus';
 import Trucks from '../../Trucks/Trucks';
 import Drivers from '../../Drivers/Drivers';
 import Profile from '../../Profile/Profile';
+import { useAuth } from '../../contexts/Auth';
 
 const paths = [
     {
@@ -53,9 +54,12 @@ const paths = [
 ];
 const Sidebar: React.FC = () => {
 
+    const {logout}= useAuth();
+
     const handleLogout=()=>{
         localStorage.removeItem('token')
         localStorage.removeItem('id')
+        logout();
     }
     return (
         <IonPage>

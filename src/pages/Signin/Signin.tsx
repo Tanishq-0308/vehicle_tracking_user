@@ -6,6 +6,8 @@ import { useHistory } from 'react-router';
 import { CapacitorHttp } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import logo from '../../assets/logo.png'
+import AuthContext from '../contexts/Authentication/AuthContext';
+import { useAuth } from '../contexts/Auth';
 
 const Signin: React.FC = () => {
   const [email, setEmail] = useState<string>('tanishq@gmail.com');
@@ -16,6 +18,9 @@ const Signin: React.FC = () => {
   const [toast, setToast] = useState(false);
   const [toastColor, setToastColor] = useState('');
   const [present, dismiss] = useIonLoading();
+  // type LoginContextType = /*unresolved*/ any
+  // const {setUser}= useContext<LoginContextType | undefined>(AuthContext);
+  const {loginAuth}= useAuth();
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +53,8 @@ const Signin: React.FC = () => {
       // const response = await axios.post(login(), inputs)
       const access_token = response1.data.token;
       const adminId = response1.data.id;
-
+      // setUser(access_token)
+      
       localStorage.setItem('token', access_token);
       localStorage.setItem('id', adminId)
       if (response1.status === 200) {
@@ -56,6 +62,7 @@ const Signin: React.FC = () => {
         setTimeout(async () => {
           dismiss();
           history.push('/app')
+          loginAuth();
         }, 2000)
       } else {
         setToastMessage("User is not registered");

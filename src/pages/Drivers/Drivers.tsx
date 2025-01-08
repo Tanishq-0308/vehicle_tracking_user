@@ -17,12 +17,12 @@ const Drivers: React.FC = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [empty, setEmpty] = useState(false)
   type AdminContextType = /*unresolved*/ any
-  const {setDriverDetail} = useContext<AdminContextType | undefined>(AdminContext);
-  const router= useIonRouter();
+  const { setDriverDetail } = useContext<AdminContextType | undefined>(AdminContext);
+  const router = useIonRouter();
   const [loading, setLoading] = useState(false)
   const id = localStorage.getItem('id')
   const bearer_token = localStorage.getItem('token');
-    const [search, setSearch] = useState('');
+  const [search, setSearch] = useState('');
 
   const headers = {
     'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const Drivers: React.FC = () => {
     setSelectedSegment(event.detail.value);
   };
 
-  const handleInput=(event:CustomEvent)=>{
+  const handleInput = (event: CustomEvent) => {
     setSearch(event.detail.value)
   }
   return (
@@ -110,55 +110,55 @@ const Drivers: React.FC = () => {
           {selectedSegment === 'drivers' && (
             <>
               <IonSegmentContent id='drivers'>
-            <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Driver Search'></IonSearchbar>
+                <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Driver Search'></IonSearchbar>
                 {
                   empty ? (
                     <div className=' text-center text-xl'>No truck added</div>
                   ) : (
                     drivers
-                    .filter((driver)=>{
-                      return search.toLowerCase() === ''
-                      ? driver
-                      : (
-                        (driver.Name.toLowerCase().includes(search))
-                      )
-                    })
-                    .map((driver, index) => (
-                      <IonGrid key={index} 
-                      onClick={(e)=>{
-                        setDriverDetail(driver)
-                        router.push('/driver-info')
-                      }}
-                      >
-                        <IonRow>
-                          <IonCol>
-                            <div className='bg-white rounded-lg m-1 mx-2'>
-                              <div className='flex items-center p-3 border-b rounded-xl  '>
-                                <div className='h-[52px] w-16 flex'>
-                                  <img
-                                    src={truckImg}
-                                    alt="truckimg"
-                                    className="rounded-full"
-                                  />
-                                </div>
-                                <div className='flex w-full justify-between p-1 mx-2'>
-                                  <div className=" text-lg font-bold leading-4 mt-1">
-                                    <p className='text-black text-[17px] pb-1 '>{driver.Name}</p>
-                                    <p className="text-gray-500 font-normal  text-[13px]">{driver.PhoneNumber}</p>
+                      .filter((driver) => {
+                        return search.toLowerCase() === ''
+                          ? driver
+                          : (
+                            (driver.Name.toLowerCase().includes(search))
+                          )
+                      })
+                      .map((driver, index) => (
+                        <IonGrid key={index}
+                          onClick={(e) => {
+                            setDriverDetail(driver)
+                            router.push('/driver-info')
+                          }}
+                        >
+                          <IonRow>
+                            <IonCol>
+                              <div className='bg-white rounded-lg m-1 mx-2'>
+                                <div className='flex items-center p-3 border-b rounded-xl  '>
+                                  <div className='h-[52px] w-16 flex'>
+                                    <img
+                                      src={truckImg}
+                                      alt="truckimg"
+                                      className="rounded-full"
+                                    />
                                   </div>
-                                  <div className=''>
-                                    <p className="text-green-600 text-end font-bold m-0">In Transit</p>
-                                    <p className="text-gray-500 font-normal  text-[13px]">
-                                      In Truck num <span className='font-bold text-black'>GTY 1024</span>
-                                    </p>
+                                  <div className='flex w-full justify-between p-1 mx-2'>
+                                    <div className=" text-lg font-bold leading-4 mt-1">
+                                      <p className='text-black text-[17px] pb-1 '>{driver.Name}</p>
+                                      <p className="text-gray-500 font-normal  text-[13px]">{driver.PhoneNumber}</p>
+                                    </div>
+                                    <div className=''>
+                                      <p className="text-green-600 text-end font-bold m-0">In Transit</p>
+                                      <p className="text-gray-500 font-normal  text-[13px]">
+                                        In Truck num <span className='font-bold text-black'>GTY 1024</span>
+                                      </p>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
-                          </IonCol>
-                        </IonRow>
-                      </IonGrid>
-                    )))
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                      )))
                 }
               </IonSegmentContent>
               <IonFab horizontal='end' vertical='bottom' slot='' className='ion-padding'>

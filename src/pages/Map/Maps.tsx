@@ -2,9 +2,23 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, useIonViewWillEnt
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
-import { gpsData } from '../apis/apis';
+import { getTruck, gpsData } from '../apis/apis';
 import { CapacitorHttp } from '@capacitor/core';
 import iconUrl from '../../assets/locate.png'
+
+interface Truck {
+  name: string;
+  truck:{
+    truck_brand: string;
+    model_no: string;
+    truck_number: string
+  }
+  gps_data:{
+    status:string;
+    latitude:number;
+    longitude:number;
+  }
+}
 
 const Maps: React.FC = () => {
     const id = localStorage.getItem('id')
@@ -16,38 +30,73 @@ const Maps: React.FC = () => {
   const truckId=16;
     const mapRef= useRef<HTMLDivElement | null>(null);
     const mapInstance= useRef<L.Map | null>(null);
-    const markerRef = useRef<L.Marker | null>(null);
+    const markerRef = useRef<L.Marker<any>[]>([]);
+    const [trucks, setTrucks] = useState<Truck[]>([]);
     const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
 
-    useEffect(()=>{
-        const getGpsData=async()=>{
-          try{
-            const response= await CapacitorHttp.request({
-              url:gpsData(truckId,id),
-              method:'GET',
-              headers:headers
+     useEffect(() => {
+        const getTrucks = async (id: any) => {
+          try {
+            const response = await CapacitorHttp.request({
+              url: getTruck(id),
+              headers: headers,
+              method: 'GET'
             })
-            console.log("latitude: ",response.data.latitude + "longitude", response.data.longitude);
+            console.log(response);
+            console.log(response.data.trucks.length);
+    
+            if (response.data.trucks.length >= 0) {
+              setTrucks(response.data.trucks);
+            }
             setMarkerPosition({
-              lat: response.data.latitude,
-              lng: response.data.longitude,
-            });
-          }catch(err){
-            console.error(err);
+              lat: 20.5937,
+              lng: 78.9629,
+            })
+          } catch (err) {
+            console.error("fetching truck data", err);
           }
         }
-        // setInterval(() => {
-          getGpsData();
+        getTrucks(id);
+    
+        return () => {
+          setTrucks([])
+        }
+      }, [id]);
+
+
+    // useEffect(()=>{
+    //     const getGpsData=async()=>{
+    //       try{
+    //         const response= await CapacitorHttp.request({
+    //           url:gpsData(truckId,id),
+    //           method:'GET',
+    //           headers:headers
+    //         })
+    //         console.log("latitude: ",response.data.latitude + "longitude", response.data.longitude);
+    //         setMarkerPosition({
+    //           lat: 20.5937,
+    //           lng: 78.9629,
+    //         });
+    //       }catch(err){
+    //         console.error(err);
+    //       }
+    //     }
+    //     // setInterval(() => {
+    //       getGpsData();
           
-        // }, 100);
-      },[])
+    //     // }, 100);
+    //   },[])
       
       useEffect(() => {
-        if (mapRef.current && markerPosition) {
+        if (mapRef.current && markerPosition && trucks) {
+          console.log(trucks);
+          
             if (!mapInstance.current) {
+              console.log("marler",markerPosition);
+              
                 mapInstance.current = L.map(mapRef.current, {
                     center: [markerPosition.lat, markerPosition.lng],
-                    zoom: 10,
+                    zoom: 5,
                     zoomControl: true,
                 });
     
@@ -63,8 +112,10 @@ const Maps: React.FC = () => {
 
             // Remove the previous marker if it exists
             if (markerRef.current) {
-                mapInstance.current.removeLayer(markerRef.current);
-            }
+              markerRef.current.forEach(marker => {
+                  mapInstance.current.removeLayer(marker);
+              });
+          }
                 // Update the map's center
                 const customIcon = L.icon({
                     iconUrl: iconUrl, // Replace with the path to your image
@@ -72,25 +123,37 @@ const Maps: React.FC = () => {
                     iconAnchor: [16, 32], // Point of the icon which will correspond to marker's location
                     popupAnchor: [0, -30] // Point from which the popup should open relative to the iconAnchor
                   });
-                    mapInstance.current.setView([markerPosition.lat, markerPosition.lng]);
-                    markerRef.current= L.marker([markerPosition.lat,markerPosition.lng],{icon:customIcon})
-                    .addTo(mapInstance.current)
-                    .bindPopup("Your location")
+                  mapInstance.current.setView([markerPosition.lat, markerPosition.lng]);
+
+            if(mapInstance.current && markerRef.current){
+              markerRef.current= trucks.map((truck)=>{
+                const marker= L.marker([truck.gps_data.latitude, truck.gps_data.longitude],{icon:customIcon})
+                .addTo(mapInstance.current)
+                .bindPopup(truck.truck.truck_number)
+                // .openPopup();
+                return marker;
+              })
+
+            }
+
+                    // markerRef.current= L.marker([markerPosition.lat,markerPosition.lng],{icon:customIcon})
+                    // .addTo(mapInstance.current)
+                    // .bindPopup("Your location")
             }
     
             // Ensure the map resizes correctly if necessary
             
             mapInstance.current.invalidateSize();
         }
-    }, [mapRef, markerPosition]);
+    }, [mapRef, markerPosition, trucks]);
     
-    useIonViewWillEnter(() => {
-        console.log('Map view will enter');
-        if (mapInstance.current && markerPosition) {
-          // You can initialize or refresh map here if needed
-          mapInstance.current.setView([markerPosition.lat, markerPosition.lng], 10);
-        }
-      });
+    // useIonViewWillEnter(() => {
+    //     console.log('Map view will enter');
+    //     if (mapInstance.current && markerPosition) {
+    //       // You can initialize or refresh map here if needed
+    //       mapInstance.current.setView([markerPosition.lat, markerPosition.lng], 10);
+    //     }
+    //   });
     return (
         <IonPage>
             <IonHeader>

@@ -1,7 +1,7 @@
 import { IonButton, IonButtons, IonCol, IonContent, IonFab, IonFabButton, IonFooter, IonGrid, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonInput, IonItem, IonLabel, IonList, IonMenuButton, IonModal, IonPage, IonRefresher, IonRefresherContent, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonRouter, useIonViewWillEnter } from '@ionic/react';
 import './Home.css';
 import { add, call, camera, chevronBackSharp, chevronForward, chevronUp, ellipseOutline, locationOutline, map } from 'ionicons/icons';
-import {useEffect, useRef, useState } from 'react';
+import {useContext, useEffect, useRef, useState } from 'react';
 import MapView from './components/MapView';
 import truckImg from '../../assets/truck1.png'
 import { CapacitorHttp } from '@capacitor/core';
@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import { App } from '@capacitor/app';
 import { useHistory } from 'react-router';
 import MapRoute from './components/MapRoute';
+import AuthContext from '../contexts/Authentication/AuthContext';
+import { useAuth } from '../contexts/Auth';
 
 interface Trip {
   current_location: string;
@@ -44,6 +46,10 @@ const Home: React.FC = () => {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${bearer_token}`
   }
+  const {isAuthenticated}= useAuth();
+
+  console.log("Authenticate", isAuthenticated);
+  
 
   const handleSegmentChange = (event: CustomEvent) => {
     setSelectedSegment(event.detail.value);

@@ -47,17 +47,47 @@ import TruckInfo from './pages/Trucks/components/TruckInfo';
 import DriverInfo from './pages/Drivers/Components/DriverInfo';
 import HelperInfo from './pages/Drivers/Components/HelperInfo';
 import Maps from './pages/Map/Maps'
+import AuthContextProvider from './pages/contexts/Authentication/AuthenticationProvider';
+import { AuthProvider } from './pages/contexts/Auth';
+import { AuthRedirect, ProtectedRoute } from './pages/Route/ProtectedRoute';
 
 setupIonicReact();
 
 const App: React.FC = () => (
   <IonApp>
+    <AuthProvider>
+    <AuthContextProvider>
     <AdminContextProvider>
     <TripContextProvider>
     <IonReactRouter>
       <IonRouterOutlet>
         {/* <Route exact component={Home} path='/home'/> */}
-        <Route exact component={Signin} path='/signin'/>
+        <Route exact path="/" render={() => <Redirect to="/signin" />} />
+                
+                {/* /signin route with AuthRedirect to prevent logged-in users from accessing it */}
+                <Route
+                  path="/signin"
+                  render={() => (
+                    <AuthRedirect>
+                      <Signin />
+                    </AuthRedirect>
+                  )}
+                />
+
+                {/* Protected /app route, only accessible to authenticated users */}
+                <Route
+                  path="/app"
+                  render={() => (
+                    <ProtectedRoute>
+                      <Sidebar /> {/* Render Sidebar (dashboard) only if authenticated */}
+                    </ProtectedRoute>
+                  )}
+                />
+
+        {/* <Route exact path="/">
+          <Redirect to="/signin" />
+        </Route>
+        <Route exact component={Signin} path='/signin'/> */}
         <Route component={Sidebar} path='/app'/>
         <Route component={Signup} path='/signup'/>
         <Route component={CreateTrip} path="/create-trip"/>
@@ -69,13 +99,13 @@ const App: React.FC = () => (
         <Route component={DriverInfo} path="/driver-info"/>
         <Route component={HelperInfo} path="/helper-info"/>
         <Route component={Maps} path="/maps"/>
-        <Route exact path="/">
-          <Redirect to="/signin" />
-        </Route>
+        
       </IonRouterOutlet>
     </IonReactRouter>
     </TripContextProvider>
     </AdminContextProvider>
+    </AuthContextProvider>
+    </AuthProvider>
   </IonApp>
 );
 
