@@ -119,3 +119,21 @@
 .segmentContent{
     --background:#343B45;
 }
+
+.search-bar{
+    margin-left: 10px;
+    --border-radius:15px;
+    --background:var(--background);
+    --box-shadow:inset 0px 0px 3px rgba(255, 255, 255, 0.205);
+    --icon-color:white;
+}
+
+.details-button{
+    --background: var(--background);
+  --background-hover: #9ce0be;
+  --background-activated: #88f4be;
+  --background-focused: #88f4be;
+  --color: rgb(255, 255, 255);
+    margin-right: 5px;
+    --box-shadow:none;
+}

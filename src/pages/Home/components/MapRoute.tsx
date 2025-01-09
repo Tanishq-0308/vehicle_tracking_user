@@ -16,9 +16,10 @@ interface MapRouteProps {
     start_longitude: number;
     dest_lat: number;
     dest_long: number;
+    truck_id:number;
 }
 
-const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_lat,dest_long}) => {
+const MapRoute: React.FC<MapRouteProps> = ({truck_id,start_latitude,start_longitude,dest_lat,dest_long}) => {
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
     const mapRef = useRef<HTMLDivElement | null>(null);
@@ -30,7 +31,7 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
     'Content-Type': 'application/json',
     Authorization: `Bearer ${bearer_token}`
   }
-  const truckId=16;
+  // const truck_id=16;
     
   useIonViewWillEnter(() => {
     console.log('Map view will enter');
@@ -44,7 +45,7 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
             const getGpsData=async()=>{
               try{
                 const response= await CapacitorHttp.request({
-                  url:gpsData(truckId,id),
+                  url:gpsData(truck_id,id),
                   method:'GET',
                   headers:headers
                 })
@@ -60,7 +61,7 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
             const inter= setInterval(() => {
               getGpsData();
               
-            }, 1000);
+            }, 500);
             console.log('enter');
             
             
@@ -167,7 +168,6 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
           });
           markerRef.current=L.marker([markerPosition.lat,markerPosition.lng],{icon:customIcon3})
                             .addTo(mapInstance.current)
-                            .bindPopup("Your location").openPopup();
         }
       }
   
@@ -195,7 +195,7 @@ const MapRoute: React.FC<MapRouteProps> = ({start_latitude,start_longitude,dest_
           <div
             ref={mapRef}
             className="map-container"
-            style={{ height: '100%' }} // Ensure the map fills the container height
+            style={{ height: '80%' }} // Ensure the map fills the container height
           ></div>
         </IonContent>
       </IonPage>

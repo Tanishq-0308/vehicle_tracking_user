@@ -10,8 +10,8 @@ import AuthContext from '../contexts/Authentication/AuthContext';
 import { useAuth } from '../contexts/Auth';
 
 const Signin: React.FC = () => {
-  const [email, setEmail] = useState<string>('tanishq@gmail.com');
-  const [password, setPassword] = useState<string>('12345678');
+  const [email, setEmail] = useState<string>('admin@mail.com');
+  const [password, setPassword] = useState<string>('admin');
   const [error, setError] = useState<string>('');
   const [toastMessage, setToastMessage] = useState('')
   const history = useHistory();

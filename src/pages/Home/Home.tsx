@@ -117,26 +117,26 @@ const Home: React.FC = () => {
     
   // }
 
-  const ionRouter = useIonRouter();
-  document.addEventListener('ionBackButton', async (event: any) => {
-    const pass = localStorage.getItem('id')
+  // const ionRouter = useIonRouter();
+  // document.addEventListener('ionBackButton', async (event: any) => {
+  //   const pass = localStorage.getItem('id')
 
-    event.detail.register(-1, async () => {
-      if (pass) {
-        console.log("pass valuedd", pass);
+  //   event.detail.register(-1, async () => {
+  //     if (pass) {
+  //       console.log("pass valuedd", pass);
 
-        const ans = window.confirm("Are you sure to exit ?")
-        if (ans) {
-          // await Preferences.remove({key:'signin'});
-          App.exitApp();
+  //       const ans = window.confirm("Are you sure to exit ?")
+  //       if (ans) {
+  //         // await Preferences.remove({key:'signin'});
+  //         App.exitApp();
 
-        }
-        else {
-          history.push('/app');
-        }
-      }
-    });
-  });
+  //       }
+  //       else {
+  //         history.push('/app');
+  //       }
+  //     }
+  //   });
+  // });
 
   useIonViewWillEnter(() => {
     console.log("started");
@@ -181,7 +181,18 @@ const Home: React.FC = () => {
             </div>
           </IonButton>
         </IonToolbar>
-        <div className='tab2'>
+        
+      </IonHeader>
+      <IonContent className='content'>
+        {/* <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
+          <IonRefresherContent />
+        </IonRefresher> */}
+        <IonSegmentView>
+          {selectedSegment === 'trip_history' && (
+            <>
+              <IonSegmentContent id='trip_history'>
+                <IonHeader>
+            <div className='tab2'>
           <IonSegment scrollable={true} color={'warning'} value={selectSecondSegment} onIonChange={handleSecondSegmentChange}>
           <IonSegmentButton value='All'>
               All
@@ -203,17 +214,9 @@ const Home: React.FC = () => {
             </IonSegmentButton>
           </IonSegment>
         </div>
-      </IonHeader>
-      <IonContent className='content'>
-        {/* <IonRefresher slot='fixed' onIonRefresh={(ev) => doRefresh(ev)}>
-          <IonRefresherContent />
-        </IonRefresher> */}
-        <IonSegmentView>
-          {selectedSegment === 'trip_history' && (
-            <>
-              <IonSegmentContent id='trip_history'>
+                </IonHeader>
                 <IonContent className='segmentContent'>
-                  <IonList className='bg-[#343B45]'>
+                  <IonList className='bg-[#343B45] mb-20'>
                     {
                       trips
                       .filter((trip)=>{
@@ -321,23 +324,32 @@ const Home: React.FC = () => {
                 <IonButton fill='clear' onClick={() => modal.current?.dismiss()}>
                   <IonIcon icon={chevronBackSharp} className='text-white'></IonIcon>
                 </IonButton>
+                <IonTitle className='text-white'>
+                  {selectedUser?.truck.truck_number}
+                  <span className='ml-2 lowercase text-sm'>{selectedUser?.truck.model_no}</span>
+                </IonTitle>
+                {/* <IonButton className='details-button' id='openModal'>
+                  details
+                </IonButton> */}
               </div>
             </IonToolbar>
           </IonHeader>
           <IonContent className="ion-padding" >
             <MapRoute 
+            truck_id={selectedUser?.truck.id}
             start_latitude={selectedUser?.start_latitude}
             start_longitude={selectedUser?.start_longitude}
             dest_lat={selectedUser?.dest_latitude}
             dest_long={selectedUser?.dest_longitude}
             />
           </IonContent>
-          <IonFooter className={`h-[45px] absolute transition-all ease-in-out duration-700 bottom-0 w-full`} id='upcoming-task-modal'>
+          {/* <IonFooter className={`h-[45px] absolute transition-all ease-in-out duration-700 bottom-0 w-full`} id='upcoming-task-modal'>
             <div id='openModal' className="ion-text-center pt-2 pb-4 px-0 bg-[#222428] text-gray-400 overflow-hidden rounded-t-xl w-[calc(100%-25px)] h-[75px] m-auto">
               <IonIcon icon={chevronUp} className="block m-auto text-2xl mb-2" color="light"></IonIcon>
             </div>
-          </IonFooter>
-          <IonModal isOpen={true} trigger='openModal' initialBreakpoint={0.5} breakpoints={[0.25, 0.5, 0.75]}>
+          </IonFooter> */}
+          <IonModal isOpen={true} trigger='openModal' backdropDismiss={false}
+          backdropBreakpoint={0.5} initialBreakpoint={0.25} breakpoints={[0.25, 0.5, 0.75]}>
             <IonHeader className='bg-[#e4dede] ion-no-border' >
               <div className=''>
                 <div className='flex justify-between px-5 pt-4 items-center pb-1'>

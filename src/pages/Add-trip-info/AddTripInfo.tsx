@@ -1,4 +1,4 @@
-import { IonButton, IonCol, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonModal, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToast, IonToolbar } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonDatetime, IonDatetimeButton, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonList, IonModal, IonPage, IonRow, IonSelect, IonSelectOption, IonTitle, IonToast, IonToolbar, useIonViewWillEnter } from '@ionic/react';
 import { chevronBackSharp, ellipseOutline, locate } from 'ionicons/icons';
 import React, { useContext, useEffect, useState } from 'react';
 import TripContext from '../contexts/TripContext/TripContext';
@@ -103,74 +103,75 @@ const AddTripInfor: React.FC = () => {
             console.log(err);
         }
     }
+    const getTrucks = async (id: any) => {
+        try {
+            const response = await CapacitorHttp.request({
+                url: getTruck(id),
+                headers: headers,
+                method: 'GET'
+            })
+            console.log(response);
+            console.log(response.data.trucks.length);
+
+            if (response.data.trucks.length >= 0) {
+                setTrucks(response.data.trucks);
+            }
+        } catch (err) {
+            console.error("fetching truck data", err);
+        }
+    };
+    const getDrivers = async (id: any) => {
+        try {
+            const response = await CapacitorHttp.request({
+                url: getDriver(id),
+                headers: headers,
+                method: 'GET'
+            })
+            console.log(response);
+            console.log(response.data.drivers.length);
+
+            if (response.data.drivers.length >= 0) {
+                setDrivers(response.data.drivers);
+            }
+        } catch (err) {
+            console.error("fetching driver data", err);
+        }
+    };
+    const getHelpers = async (id: any) => {
+        try {
+            const response = await CapacitorHttp.request({
+                url: getHelper(id),
+                headers: headers,
+                method: 'GET'
+            })
+            console.log(response);
+            console.log(response.data.helpers.length);
+
+            if (response.data.helpers.length >= 0) {
+                setHelpers(response.data.helpers);
+            }
+        } catch (err) {
+            console.error("fetching Helper data", err);
+        }
+    };
     useEffect(() => {
         console.log("current location",current);
         console.log("end location",destination);
-        
-        
-        const getDrivers = async (id: any) => {
-            try {
-                const response = await CapacitorHttp.request({
-                    url: getDriver(id),
-                    headers: headers,
-                    method: 'GET'
-                })
-                console.log(response);
-                console.log(response.data.drivers.length);
-
-                if (response.data.drivers.length >= 0) {
-                    setDrivers(response.data.drivers);
-                }
-            } catch (err) {
-                console.error("fetching driver data", err);
-            }
-        }
         getDrivers(id);
-
-        const getTrucks = async (id: any) => {
-            try {
-                const response = await CapacitorHttp.request({
-                    url: getTruck(id),
-                    headers: headers,
-                    method: 'GET'
-                })
-                console.log(response);
-                console.log(response.data.trucks.length);
-
-                if (response.data.trucks.length >= 0) {
-                    setTrucks(response.data.trucks);
-                }
-            } catch (err) {
-                console.error("fetching truck data", err);
-            }
-        }
         getTrucks(id);
-
-        const getHelpers = async (id: any) => {
-            try {
-                const response = await CapacitorHttp.request({
-                    url: getHelper(id),
-                    headers: headers,
-                    method: 'GET'
-                })
-                console.log(response);
-                console.log(response.data.helpers.length);
-
-                if (response.data.helpers.length >= 0) {
-                    setHelpers(response.data.helpers);
-                }
-            } catch (err) {
-                console.error("fetching Helper data", err);
-            }
-        }
         getHelpers(id);
-
         return () => {
             setDrivers([])
             setTrucks([])
             setHelpers([])
         }
     }, [id]);
+
+    useIonViewWillEnter(()=>{
+        getDrivers(id);
+        getTrucks(id);
+        getHelpers(id);
+    })
     return (
         <IonPage>
             <IonHeader >

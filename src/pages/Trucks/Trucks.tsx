@@ -89,19 +89,20 @@ const Trucks: React.FC = () => {
                 My Trucks
               </span>
             </IonTitle>
+            <IonSearchbar className='text-white search-bar' placeholder='Search' debounce={1000} onIonInput={(event) => handleInput(event)} ></IonSearchbar>
+        
           </div>
         </IonToolbar>
-        <IonToolbar className='IonToolbar'>
-          <IonSearchbar debounce={1000} onIonInput={(event) => handleInput(event)} placeholder='Truck Search'></IonSearchbar>
-        </IonToolbar>
+        {/* <IonToolbar className='IonToolbar'>
+          </IonToolbar> */}
         <div className='tab2'>
           <IonSegment scrollable={true} color={'warning'} value={selectSegment} onIonChange={handleSegmentChange}
           >
             <IonSegmentButton value='All'>
               All
             </IonSegmentButton>
-            <IonSegmentButton value='Moving'>
-              Moving
+            <IonSegmentButton value='Running'>
+              Running
             </IonSegmentButton>
             <IonSegmentButton value='Stopped'>
               Stopped
@@ -133,8 +134,8 @@ const Trucks: React.FC = () => {
               })
               .filter((truck)=>{
                 switch (selectSegment){
-                  case 'Moving':
-                    return truck.gps_data.status=== 'Moving';
+                  case 'Running':
+                    return truck.gps_data.status=== 'Running';
                   case 'Stopped':
                     return truck.gps_data.status=== 'Stopped';
                   case 'Offline':

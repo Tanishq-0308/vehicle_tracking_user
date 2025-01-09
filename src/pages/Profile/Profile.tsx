@@ -5,6 +5,7 @@ import { CapacitorHttp, HttpResponse } from '@capacitor/core';
 import { getProfile } from '../apis/apis';
 import PersonIcon from '@mui/icons-material/Person';
 import { Logout } from '@mui/icons-material';
+import { useAuth } from '../contexts/Auth';
 
 interface Admin{
     Name:string;
@@ -25,6 +26,7 @@ const Profile: React.FC = () => {
         Authorization: `Bearer ${bearer_token}`
     }
     const id = localStorage.getItem('id')
+    const {logout}= useAuth();
 
     useIonViewWillEnter(()=>{
         const getAdminDetails = async () => {
@@ -46,6 +48,7 @@ const Profile: React.FC = () => {
     const handleLogout=()=>{
         localStorage.removeItem('token')
         localStorage.removeItem('id')
+        logout();
         router.push('/signin')
     }
     return (
